@@ -1,0 +1,9 @@
+.cache
+.idea/
+images/
+*.pt
+env/
+__pycache__
+.env
+yolov8m_openvino_model/
+yolov8n_openvino_model

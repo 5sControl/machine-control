@@ -56,13 +56,14 @@ class Area:
 def get_areas(img_shape):
     import ast
     areas = os.environ.get("extra")
+    print(areas)
+
     area_values = []
     if areas:
         areas = ast.literal_eval(areas)
-
         for dct in areas:
             for coords in dct['coords']:
-                x1_area, y1_area, x2_area, y2_area = coords['x1'], coords['y1'], coords['x2'], coords['y2']
+                x1_area, y1_area, x2_area, y2_area = int(coords['x1']), int(coords['y1']), int(coords['x2']), int(coords['y2'])
                 area = Area()
                 area.coords = (x1_area, y1_area, x2_area, y2_area)
                 area.date = []
@@ -109,13 +110,18 @@ def get_frame(h):
     return None
 
 def predict(model, img):
+    CONF = 0.4
     res = detect(np.array(img), model)[0]['det']
-
     if len(res):
         xyxy, confs, classes  = res[:, :4].numpy().astype(np.uint16), res[:, 4].numpy(), res[:, 5].numpy().astype(np.uint8)
-        mask, = np.where(classes == 0.)
+        classes_mask, = np.where(classes == 0.)
+        conf_mask, = np.where(confs > CONF)
+        
+        mask = np.intersect1d(classes_mask, conf_mask)
+
         boxes = xyxy[mask] if len(mask) else []
         confs = confs[mask] if len(mask) else []
+        
         return boxes, confs
     return [], []
 
@@ -150,6 +156,7 @@ def send_report_and_save_photo(area):
                 'stop_tracking': stop_tracking,
                 'photos': photos,
                 'violation_found': True,
+                'extra': {'zoneId': area.zone_id, 'zoneName': area.zone_name}
             }
     print(report_for_send)
     try:
