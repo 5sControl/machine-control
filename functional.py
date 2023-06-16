@@ -1,17 +1,14 @@
 
 import os
 import uuid
-import datetime
 import pathlib
 import logging
 
 import cv2
-import torch
 import requests
 import httplib2
 import numpy as np
 
-from ultralytics import YOLO
 from openvino.runtime import Core
 from openvino_functional import *
 

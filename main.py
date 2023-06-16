@@ -1,6 +1,7 @@
 import time
+import datetime
 from functional import *
-import os
+
 
 def run():
     while (h := init_connection()) is None:

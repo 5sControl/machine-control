@@ -1,11 +1,8 @@
 from typing import Tuple, Dict
 import cv2
-import numpy as np
-from PIL import Image
-from ultralytics.yolo.utils.plotting import colors
 
-from typing import Tuple
-from ultralytics.yolo.utils import ops
+from plotting import colors
+import ops
 import torch
 import numpy as np
 import random

@@ -1,1 +1,6 @@
 .cache
+__pycache__
+env/
+yolov8n_openvino_model/
+.gitignore
+README.md
