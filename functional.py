@@ -1,4 +1,3 @@
-
 import os
 import uuid
 import pathlib
@@ -10,13 +9,14 @@ import httplib2
 import numpy as np
 
 from openvino.runtime import Core
-from openvino_functional import *
+from yolo_utils.openvino_functional import *
 
+from config import CFG
 
 class Area:
-    coords = []
     date = []
     imgs = []
+    coords = []
     zone_name = None
     zone_id = None
 
@@ -53,33 +53,31 @@ class Area:
 def get_areas(img_shape):
     import ast
     areas = os.environ.get("extra")
-    print(areas)
+    logging.debug(areas)
 
     area_values = []
     if areas:
         areas = ast.literal_eval(areas)
         for dct in areas:
             for coords in dct['coords']:
-                x1_area, y1_area, x2_area, y2_area = int(coords['x1']), int(coords['y1']), int(coords['x2']), int(coords['y2'])
                 area = Area()
-                area.coords = (x1_area, y1_area, x2_area, y2_area)
-                area.date = []
-                area.imgs = []
+                area.coords = (int(coords['x1']), int(coords['y1']), int(coords['x2']), int(coords['y2']))
+                area.date, area.imgs = [], []
                 area.zone_name = coords['zoneName']
                 area.zone_id = coords['zoneId']
 
                 area_values.append(area)
     else:
-        y, x = img_shape[:2]
         area = Area()
+        y, x = img_shape[:2]
         area.coords, area.date, area.imgs = (10, 10, x - 10, y - 10), [], []
         area_values.append(area)
     return area_values
 
 
 def init_connection():
-    password =  os.environ.get("password")
-    username =  os.environ.get("username")
+    password = os.environ.get("password")
+    username = os.environ.get("username")
     try:
         h = httplib2.Http(".cache")
         h.add_credentials(username, password)
@@ -91,7 +89,7 @@ def init_connection():
 
 def init_model():
     core = Core()
-    read_model = core.read_model('yolov8m_openvino_model/yolov8m.xml')
+    read_model = core.read_model(CFG.model_path)
     model = core.compile_model(read_model, "CPU")
     return model
 
@@ -107,13 +105,11 @@ def get_frame(h):
     return None
 
 def predict(model, img):
-    CONF = 0.4
     res = detect(np.array(img), model)[0]['det']
     if len(res):
         xyxy, confs, classes  = res[:, :4].numpy().astype(np.uint16), res[:, 4].numpy(), res[:, 5].numpy().astype(np.uint8)
         classes_mask, = np.where(classes == 0.)
-        conf_mask, = np.where(confs > CONF)
-        
+        conf_mask, = np.where(confs > CFG.person_conf)
         mask = np.intersect1d(classes_mask, conf_mask)
 
         boxes = xyxy[mask] if len(mask) else []
