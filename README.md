@@ -14,7 +14,7 @@ https://drive.google.com/file/d/1oHgIA6D8vgOfWl5AjyclPMvl21Vj_O_G/view?usp=shari
 
 Get started:
 
-```docker build -t 5scontrol/machine_control_python:v1.0.1 .```
+```docker build -t 5scontrol/machine_control_python:v1.1.1 .```
 
 ```docker run -e username=admin -e password=just4Taqtile -e camera_url="http://192.168.1.163/onvif-http/snapshot?Profile_1" -e server_url=http://192.168.1.110 -e folder=images/192.168.1.163 -it <container>```
 
