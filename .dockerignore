@@ -1,7 +1,7 @@
 .cache
 __pycache__
 .gitignore
-
+.env
 env/
 temp_models/
 images/
