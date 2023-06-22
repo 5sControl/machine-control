@@ -1,9 +1,10 @@
 # machine control
 
+# TODO: rewrite readme
+
 Structure:
 
 <img width="221" alt="image" src="https://github.com/5sControl/machine_control_python/assets/52838912/ee7a68b9-8c36-4060-8a10-8bfc7f04ed41">
-
 
 
 

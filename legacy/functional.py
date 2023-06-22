@@ -90,7 +90,7 @@ def init_connection():
 def init_model():
     core = Core()
     read_model = core.read_model(CFG.model_path)
-    model = core.compile_model(read_model, "CPU")
+    model = core.compile_model(read_model)
     return model
 
 
@@ -104,17 +104,18 @@ def get_frame(h):
         logging.error('get frame:\n' + str(exc))
     return None
 
+
 def predict(model, img):
     res = detect(np.array(img), model)[0]['det']
     if len(res):
-        xyxy, confs, classes  = res[:, :4].numpy().astype(np.uint16), res[:, 4].numpy(), res[:, 5].numpy().astype(np.uint8)
+        xyxy, confs, classes = res[:, :4].numpy().astype(np.uint16), res[:, 4].numpy(), res[:, 5].numpy().astype(np.uint8)
         classes_mask, = np.where(classes == 0.)
         conf_mask, = np.where(confs > CFG.person_conf)
         mask = np.intersect1d(classes_mask, conf_mask)
 
         boxes = xyxy[mask] if len(mask) else []
         confs = confs[mask] if len(mask) else []
-        
+
         return boxes, confs
     return [], []
 
