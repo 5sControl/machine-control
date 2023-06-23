@@ -1,5 +1,4 @@
 import cv2
-import torch
 from deep_sort_realtime.deepsort_tracker import DeepSort
 import httplib2
 import numpy as np
@@ -10,9 +9,15 @@ from dotenv import load_dotenv
 import requests
 import pathlib
 import uuid
-
+from openvino.runtime import Core
+from yolo_utils.openvino_functional import detect
+import ast
 
 load_dotenv()
+
+downscale_factor = 1
+person_conf = 0.3
+person_in_frame = 0.1
 
 
 class HTTPLIB2Capture:
@@ -37,65 +42,30 @@ class HTTPLIB2Capture:
 
 
 class YoloDetector:
-    def __init__(self):
-        self.model = self.load_model()
-        self.classes = self.model.names
+    def __init__(self, model_path):
+        self.model = self.init_model(model_path)
 
-    # def load_model(self):
-    #     model_path = 'yolov5s.pth'
-    #     model_weight_path = 'yolov5s_10cls.pt'
-    #
-    #     if os.path.isfile(model_path):
-    #         model = torch.load(model_path)
-    #         ckpt = torch.load(model_weight_path)
-    #         model.load_state_dict(ckpt['model'].state_dict())
-    #     else:
-    #         model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
-    #
-    #     torch.save(model, model_path)
-    #     torch.save(model.state_dict(), model_weight_path)
-    #     model.eval()
-    #     return model
-
-    def load_model(self):
-        model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+    @staticmethod
+    def init_model(model_path):
+        core = Core()
+        read_model = core.read_model(model_path)
+        model = core.compile_model(read_model)
         return model
 
-    def score_frame(self, frame):
-        downscale_factor = 1
-        width = int(frame.shape[1] / downscale_factor)
-        height = int(frame.shape[0] / downscale_factor)
-        frame = cv2.resize(frame, (width, height))
-        results = self.model(frame)
-        labels, cord = results.xyxyn[0][:, -1], results.xyxyn[0][:, :-1]
-        return labels, cord
+    def predict_filter(self, img):
+        res = detect(np.array(img), self.model)[0]['det']
+        if len(res):
+            xyxy, confs, classes = res[:, :4].numpy().astype(np.uint16), res[:, 4].numpy(), res[:, 5].numpy().astype(
+                np.uint8)
+            classes_mask, = np.where(classes == 0.)
+            conf_mask, = np.where(person_conf)
+            mask = np.intersect1d(classes_mask, conf_mask)
 
-    def class_to_label(self, x):
-        return self.classes[int(x)]
+            boxes = xyxy[mask] if len(mask) else []
+            confs = confs[mask] if len(mask) else []
 
-    def filter_boxes(self, results, frame, height, width, confidence=0.35):
-        labels, cord = results
-        detections = []
-        feature = "person"
-
-        n = len(labels)
-        x_shape, y_shape = width, height
-
-        for i in range(n):
-            if self.class_to_label(labels[i]) == feature:
-                row = cord[i]
-                if row[4] >= confidence:
-                    x1, y1, x2, y2 = (
-                        int(row[0] * x_shape),
-                        int(row[1] * y_shape),
-                        int(row[2] * x_shape),
-                        int(row[3] * y_shape),
-                    )
-                    confidence = float(row[4].item())
-                    detections.append(
-                        ([x1, y1, int(x2 - x1), int(y2 - y1)], row[4].item(), feature)
-                    )
-        return frame, detections
+            return boxes, confs
+        return [], []
 
 
 def send_report_and_save_photo(area):
@@ -139,7 +109,6 @@ class Area:
 
 
 def get_areas(img_shape):
-    import ast
     areas = os.environ.get("extra")
     logging.debug(areas)
 
@@ -155,7 +124,7 @@ def get_areas(img_shape):
                 area.zone_id = coords['zoneId']
                 area_values.append(area)
     else:
-        area = Area()
+        area = Area() # TODO: delete
         y, x = img_shape[:2]
         area.coords, area.date, area.imgs = (10, 10, x - 10, y - 10), [], []
         area_values.append(area)
@@ -178,10 +147,14 @@ def calculate_intersection(small_box, huge_box):
 
 
 def main(img, area_values):
-    results = detector.score_frame(img)
-    img, detections = detector.filter_boxes(results, img, height=img.shape[0], width=img.shape[1], confidence=0.35)
+    boxes, confs = detector.predict_filter(img)
+    detections: list = []
+    for (x1, y1, x2, y2), conf in zip(boxes, confs):
+        detections.append(
+            ((x1, y1, x2 - x1, y2 - y1), conf, 'person')
+        )
+        cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 255), 2)  # blue
     tracks = object_tracker.update_tracks(detections, frame=img)
-
     for i, a_val in enumerate(area_values):
         huge_box = a_val.coords
         x1_area, y1_area, x2_area, y2_area = huge_box
@@ -194,11 +167,12 @@ def main(img, area_values):
         for track in tracks:
             if not track.is_confirmed():
                 continue
-            small_box = list(map(int, track.to_ltrb()))
-            x1, y1, x2, y2 = small_box
+            x1, y1, x2, y2 = list(map(lambda x: int(x * downscale_factor), track.to_ltrb()))
+            small_box = x1, y1, x2, y2
+
             cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 2)  # blue
 
-            if calculate_intersection(small_box, huge_box) > 0.15:
+            if calculate_intersection(small_box, huge_box) > person_in_frame:
                 in_area = True
                 # cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 2) # blue
                 if len(area_values[i].imgs) == 0 or len(area_values[i].imgs) == 3:
@@ -209,7 +183,6 @@ def main(img, area_values):
                     area_values[i].date[0] = datetime.datetime.now()
 
             if in_area:
-                # cv2.putText(img, str(conf), (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
                 cv2.rectangle(img, (x1_area, y1_area), (x2_area, y2_area), (0, 200, 0), 2) # green area
             else:
                 if len(area_values[i].imgs) == 1:
@@ -226,33 +199,34 @@ def main(img, area_values):
             print(len(area_values[i].imgs))
         if len(area_values[i].imgs) >= 4:
             send_report_and_save_photo(area_values[i])
-            # print('BINGOO!!!')
             area_values[i].imgs = []
             area_values[i].date = []
 
     cv2.imshow("img", img)
 
-
 def run_local():
     cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1980)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1200)
+    # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1980)
+    # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1200)
 
     succes, img = cap.read()
     area_values = get_areas(img.shape)
-
+    imgs: list = []
     while True:
         succes, img = cap.read()
-        if succes:
-            main(img, area_values)
-
+        # while len(imgs) < 10:
+        #     succes, img = cap.read()
+        #     if succes:
+        #         imgs.append(img)
+        # for img in imgs:
+        main(img, area_values)
         if cv2.waitKey(1) & 0xFF == 27:
             break
     cap.release()
     cv2.destroyAllWindows()
 
 
-def rum_camera():
+def run_camera():
     username = os.environ.get("username")
     password = os.environ.get("password")
     source = os.environ.get("camera_url")
@@ -261,31 +235,38 @@ def rum_camera():
 
     img = dataset.get_snapshot()
     area_values = get_areas(img.shape)
-
+    count = 1
     while True:
+        print(count)
+        count += 1
         img = dataset.get_snapshot()
-        if img:
+        if img is not None:
             main(img, area_values)
+        if cv2.waitKey(1) & 0xFF == 27:
+            break
+    cv2.destroyAllWindows()
 
 
-detector = YoloDetector()
+detector = YoloDetector(model_path='model/yolov8n.xml')
 object_tracker = DeepSort(
     max_age=5,
-    n_init=3,
-    nms_max_overlap=1.0,
-    max_cosine_distance=0.3,
-    nn_budget=None,
-    override_track_class=None,
-    embedder="mobilenet",
-    half=True,
-    bgr=True,
-    embedder_gpu=True,
-    embedder_model_name=None,
-    embedder_wts=None,
-    polygon=False,
-    today=None,
+    # n_init=2,
+    # nms_max_overlap=1.0,
+    # max_cosine_distance=0.3,
+    # nn_budget=None,
+    # override_track_class=None,
+    # embedder="mobilenet",
+    # half=True,
+    # bgr=True,
+    # embedder_gpu=False,
+    # embedder_model_name=None,
+    # embedder_wts=None,
+    # polygon=False,
+    # today=None,
 )
 
 
 if __name__ == '__main__':
     run_local()
+
+# extra=[{"coords": [{"x1": 10, "x2": 1000, "y1": 100, "y2": 1000, "zoneName": "zone 51", "zoneId": 51 }] }, { "coords": [{ "x1": 1050, "x2": 2000, "y1": 0, "y2": 1000, "zoneName": "zone 52", "zoneId": 52 }] } ]
