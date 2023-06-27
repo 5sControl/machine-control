@@ -22,3 +22,4 @@ class HTTPLIB2Capture:
             return image
         except Exception:
             logging.warning("Empty image. Skipping iteration...")
+            return None

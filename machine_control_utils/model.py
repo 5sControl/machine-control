@@ -5,13 +5,10 @@ from deep_sort_realtime.deepsort_tracker import DeepSort
 
 
 class Model:
-    def __init__(
-        self,
-        object_detector_path: str,
-        person_conf: float,
-    ):
+    def __init__(self, object_detector_path: str, person_conf: float, n_images: int):
         self.object_detector = YoloDetector(object_detector_path, person_conf)
         self.object_tracker = DeepSort(max_age=3)
+        self.n_images = n_images
 
     def predict(self, img):
         boxes, confs = self.object_detector.predict_boxes(img)

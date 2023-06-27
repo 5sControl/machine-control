@@ -86,7 +86,7 @@ def run_local(model: Model):
     cv2.destroyAllWindows()
 
 
-def run_camera(model):
+def run_camera(model: Model):
     username = os.environ.get("username")
     password = os.environ.get("password")
     source = os.environ.get("camera_url")
@@ -96,21 +96,19 @@ def run_camera(model):
     img = dataset.get_snapshot()
     area_values = get_areas(img.shape)
 
-    imgs = [None] * 10
+    imgs = [None] * model.n_images
     itr = 0
     while True:
-        print(itr)
         img = dataset.get_snapshot()
+        if img is None:
+            continue
         imgs[itr] = img
         itr += 1
-        if itr >= 10:
+        if itr >= model.n_images:
             itr = 0
             for img in imgs:
                 main(model, img, area_values)
-            imgs = [None] * 10
-        if cv2.waitKey(1) & 0xFF == 27:
-            break
-    cv2.destroyAllWindows()
+            imgs = [None] * model.n_images
 
 
 def run_example(model: Model):
