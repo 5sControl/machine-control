@@ -1,4 +1,3 @@
-from deep_sort_realtime.deepsort_tracker import DeepSort
 from machine_control_utils.model import Model
 from machine_control_utils.utils import send_report_and_save_photo
 from run import run_camera, run_local, run_example
