@@ -23,7 +23,6 @@ class HTTPLIB2Capture:
                 continue
             imgs[counter] = img
             counter += 1
-            print(counter)
         if n_images == 1:
             return imgs[0] 
         return imgs

@@ -54,7 +54,6 @@ def run_machine_control(model: Model, img, area_values):
                 area_values[i].date[2] = datetime.datetime.now()
 
     for i, _ in enumerate(area_values):
-        print(i, " - ", len(area_values[i].imgs))
         if len(area_values[i].imgs) >= 4:
             send_report_and_save_photo(area_values[i])
             area_values[i].imgs = []
