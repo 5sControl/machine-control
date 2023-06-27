@@ -93,32 +93,8 @@ def create_logger():
     return logger
 
 
-def get_intersection(box1, box2):
-    # Ensure the input boxes are in the format [x_min, y_min, x_max, y_max]
-    assert len(box1) == 4, "Box1 should contain 4 values: [x_min, y_min, x_max, y_max]"
-    assert len(box2) == 4, "Box2 should contain 4 values: [x_min, y_min, x_max, y_max]"
-
-    # Order the coordinates (x_min, y_min, x_max, y_max)
-    x_min1, y_min1, x_max1, y_max1 = (
-        min(box1[0], box1[2]),
-        min(box1[1], box1[3]),
-        max(box1[0], box1[2]),
-        max(box1[1], box1[3]),
-    )
-    x_min2, y_min2, x_max2, y_max2 = (
-        min(box2[0], box2[2]),
-        min(box2[1], box2[3]),
-        max(box2[0], box2[2]),
-        max(box2[1], box2[3]),
-    )
-
-    x_min = max(x_min1, x_min2)
-    y_min = max(y_min1, y_min2)
-    x_max = min(x_max1, x_max2)
-    y_max = min(y_max1, y_max2)
-
-    intersection_area = max(0, x_max - x_min + 1) * max(0, y_max - y_min + 1)
-    if intersection_area <= 0:
-        return False
-    else:
-        return True
+def get_intersection(box_a, box_b):
+    la, ta, ra, ba = box_a
+    lb, tb, rb, bb = box_b
+    l, t, r, b = max(la, lb), max(ta, tb), min(ra, rb), min(ba, bb)
+    return l <= r and t <= b

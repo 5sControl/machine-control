@@ -1,6 +1,5 @@
 import os
 import cv2
-import numpy as np
 import datetime
 from machine_control_utils.HTTPLIB2Capture import HTTPLIB2Capture
 from machine_control_utils.utils import (
@@ -11,7 +10,7 @@ from machine_control_utils.utils import (
 from machine_control_utils.model import Model
 
 
-def main(model: Model, img, area_values):
+def run_machine_control(model: Model, img, area_values):
     tracks = model.predict(img)
 
     for i, a_val in enumerate(area_values):
@@ -19,16 +18,8 @@ def main(model: Model, img, area_values):
         huge_box = x1, y1, x2, y2
         huge_box_plot = x1, y1, x2 - x1, y2 - y1
 
-        cv2.putText(
-            img,
-            str(a_val.zone_id),
-            (huge_box_plot[0], huge_box_plot[1] - 10),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            1,
-            (100, 0, 200),
-            1,
-            cv2.LINE_AA,
-        )
+        cv2.putText(img, str(a_val.zone_id), (huge_box_plot[0], huge_box_plot[1] - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 0, 200), 1, cv2.LINE_AA)
 
         in_area = False
         for track in tracks:
@@ -69,7 +60,7 @@ def main(model: Model, img, area_values):
             area_values[i].imgs = []
             area_values[i].date = []
 
-    cv2.imshow("img", img)
+    # cv2.imshow("img", img)
 
 
 def run_local(model: Model):
@@ -79,7 +70,7 @@ def run_local(model: Model):
     while True:
         succes, img = cap.read()
         if succes:
-            main(model, img, area_values)
+            run_machine_control(model, img, area_values)
         if cv2.waitKey(1) & 0xFF == 27:
             break
     cap.release()
@@ -93,30 +84,18 @@ def run_camera(model: Model):
 
     dataset = HTTPLIB2Capture(source, username=username, password=password)
 
-    img = dataset.get_snapshot()
+    img = dataset.get_snapshots()
     area_values = get_areas(img.shape)
 
-    imgs = [None] * model.n_images
-    itr = 0
     while True:
-        img = dataset.get_snapshot()
-        if img is None:
-            continue
-        imgs[itr] = img
-        itr += 1
-        if itr >= model.n_images:
-            itr = 0
-            for img in imgs:
-                main(model, img, area_values)
-            imgs = [None] * model.n_images
+        imgs = dataset.get_snapshots(n_images=model.n_images)
+        for img in imgs:
+            run_machine_control(model, img, area_values)
 
 
 def run_example(model: Model):
-    with open("test_image.jpg", "rb") as image:
-        f = image.read()
-        image = np.asarray(bytearray(f))
-        img = cv2.imdecode(image, cv2.IMREAD_COLOR)
+    img= cv2.imread("test_image.jpg")
     area_values = get_areas(img.shape)
-    main(model, img, area_values)
+    run_machine_control(model, img, area_values)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
