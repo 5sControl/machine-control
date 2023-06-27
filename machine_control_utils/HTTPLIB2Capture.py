@@ -8,16 +8,15 @@ class HTTPLIB2Capture:
     def __init__(self, path, **kwargs):
         self.h = httplib2.Http(".cache")
         self.camera_url = path
-        self.username = kwargs.get('username', None)
-        self.password = kwargs.get('password', None)
+        self.username = kwargs.get("username", None)
+        self.password = kwargs.get("password", None)
         if self.username is None or self.password is None:
             logging.warning("Empty password or username")
 
     def get_snapshot(self):
         self.h.add_credentials(self.username, self.password)
         try:
-            resp, content = self.h.request(
-                self.camera_url, "GET", body="foobar")
+            resp, content = self.h.request(self.camera_url, "GET", body="foobar")
             img_array = np.frombuffer(content, np.uint8)
             image = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
             return image

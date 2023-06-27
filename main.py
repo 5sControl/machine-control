@@ -10,17 +10,15 @@ load_dotenv()
 warnings.filterwarnings("ignore")
 
 
-model_path = 'model/yolov8n.xml'
+model_path = "model/yolov8n.xml"
 person_conf = 0.4
-person_in_frame = 0.9
 
-model = Model(model_path, person_conf, person_in_frame)
+model = Model(model_path, person_conf)
 
-if __name__ == '__main__':
-    run_local(model)
-    # run_camera(model)
-    # run_example(model)
 
+run_camera(model)
+# run_local(model)
+# run_example(model)
 
 
 # extra=[{"coords": [{"x1": 10, "x2": 1000, "y1": 100, "y2": 1000, "zoneName": "zone 51", "zoneId": 51 }] }, { "coords": [{ "x1": 1050, "x2": 2000, "y1": 0, "y2": 1000, "zoneName": "zone 52", "zoneId": 52 }] } ]
