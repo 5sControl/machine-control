@@ -2,6 +2,8 @@
 __pycache__
 .gitignore
 .env
+.ipynb_checkpoints
+
 env/
 temp_models/
 images/
