@@ -93,7 +93,7 @@ def run_camera(model: Model):
 
 
 def run_example(model: Model):
-    img= cv2.imread("test_image.jpg")
+    img = cv2.imread("test_image.jpg")
     area_values = get_areas(img.shape)
     run_machine_control(model, img, area_values)
     cv2.waitKey(0)

@@ -4,7 +4,6 @@ import cv2
 import logging
 import uuid
 import requests
-import ast
 import colorlog
 
 
@@ -51,24 +50,28 @@ def send_report_and_save_photo(area):
 
 
 def get_areas(img_shape):
+    import ast
     areas = os.environ.get("extra")
-    logging.debug(areas)
 
     area_values = []
-    areas = ast.literal_eval(areas)
-    for dct in areas:
-        for coords in dct["coords"]:
-            area = Area()
-            area.coords = (
-                int(coords["x1"]),
-                int(coords["y1"]),
-                int(coords["x2"]),
-                int(coords["y2"]),
-            )
-            area.date, area.imgs = [], []
-            area.zone_name = coords["zoneName"]
-            area.zone_id = coords["zoneId"]
-            area_values.append(area)
+    if areas:
+        areas = ast.literal_eval(areas)
+        for dct in areas:
+            for coords in dct['coords']:
+                x1_area, y1_area, x2_area, y2_area = int(coords['x1']), int(coords['y1']), \
+                                                     int(coords['x2']), int(coords['y2'])
+                area = Area()
+                area.coords = (x1_area, y1_area, x2_area, y2_area)
+                area.date = []
+                area.imgs = []
+                area.zone_name = coords['zoneName']
+                area.zone_id = coords['zoneId']
+                area_values.append(area)
+    else:
+        y, x = img_shape[:2]
+        area = Area()
+        area.coords, area.date, area.imgs = (10, 10, x - 10, y - 10), [], []
+        area_values.append(area)
     return area_values
 
 
