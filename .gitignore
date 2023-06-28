@@ -4,8 +4,13 @@ __pycache__
 *.pt
 .env
 env/
+
+*.ipynb
 .ipynb_checkpoints
 
+model/
+temp_models/
+
 images/
-legacy/model/
-legacy/temp_models/
+
+legacy/

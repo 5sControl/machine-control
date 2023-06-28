@@ -2,6 +2,7 @@ import httplib2
 import numpy as np
 import cv2
 import logging
+import time
 
 
 class HTTPLIB2Capture:
@@ -23,6 +24,7 @@ class HTTPLIB2Capture:
                 continue
             imgs[counter] = img
             counter += 1
+            time.sleep(0.2)
         if n_images == 1:
             return imgs[0] 
         return imgs

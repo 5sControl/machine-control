@@ -8,13 +8,13 @@ load_dotenv()
 warnings.filterwarnings("ignore")
 
 
-model_path = "model/yolov8n.xml"
-person_conf = 0.35
+model_path = "model/yolov8x.xml"
+person_conf = 0.45
 n_images = 10
 
 model = Model(model_path, person_conf, n_images)
 
 
 run_camera(model)
-run_local(model)
+# run_local(model)
 # run_example(model)
