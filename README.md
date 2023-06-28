@@ -19,12 +19,6 @@ Get started:
 
 ```docker run -e username=admin -e password=just4Taqtile -e camera_url="http://192.168.1.163/onvif-http/snapshot?Profile_1" -e server_url=http://192.168.1.110 -e folder=images/192.168.1.163 -it <container>```
 
--e extra=[{"coords": [{"x1": 10, "x2": 1000, "y1": 100, "y2": 1000, "zoneName": "zone 51", "zoneId": 51 }] }, { "coords": [{ "x1": 1050, "x2": 2000, "y1": 0, "y2": 1000, "zoneName": "zone 52", "zoneId": 52 }]}]
-
-
-docker run -e username=admin -e password=just4Taqtile -e camera_url="http://192.168.1.163/onvif-http/snapshot?Profile_1" -e server_url=http://192.168.1.110 -e folder=images/192.168.1.163 -e extra='[{"coords": [{"x1": 10, "x2": 1000, "y1": 100, "y2": 1000, "zoneName": "zone 51", "zoneId": 51 }] }, { "coords": [{ "x1": 1050, "x2": 2000, "y1": 0, "y2": 1000, "zoneName": "zone 52", "zoneId": 52 }]}]' -it bfdadb5f2fea
-
-
 [optional]: -e extra=[...]
 
 Request: https://github.com/5sControl/QA_documentation/blob/main/algorithms/run_machine-control.json
