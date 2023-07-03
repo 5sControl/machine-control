@@ -7,11 +7,11 @@ from machine_control_utils.utils import (
     get_intersection,
     get_areas,
 )
-from machine_control_utils.model import Model
+from machine_control_utils.model import YoloDetector
 
 
-def run_machine_control(model: Model, img, area_values):
-    tracks = model.predict(img)
+def run_machine_control(model: YoloDetector, img, area_values):
+    boxes, confs = model.predict(img)
 
     for i, a_val in enumerate(area_values):
         x1, y1, x2, y2 = a_val.coords
@@ -22,10 +22,7 @@ def run_machine_control(model: Model, img, area_values):
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 0, 200), 1, cv2.LINE_AA)
 
         in_area = False
-        for track in tracks:
-            if not track.is_confirmed():
-                continue
-            x1, y1, x2, y2 = map(lambda x: int(x), track.to_ltrb())
+        for (x1, y1, x2, y2), conf in zip(boxes, confs):
             small_box = x1, y1, x2, y2
             small_box_plot = x1, y1, x2 - x1, y2 - y1
 
@@ -62,7 +59,7 @@ def run_machine_control(model: Model, img, area_values):
     # cv2.imshow("img", img)
 
 
-def run_local(model: Model):
+def run_local(model: YoloDetector):
     cap = cv2.VideoCapture(0)
     succes, img = cap.read()
     area_values = get_areas(img.shape)
@@ -76,14 +73,14 @@ def run_local(model: Model):
     cv2.destroyAllWindows()
 
 
-def run_camera(model: Model):
+def run_camera(model: YoloDetector):
     username = os.environ.get("username")
     password = os.environ.get("password")
     source = os.environ.get("camera_url")
 
     dataset = HTTPLIB2Capture(source, username=username, password=password)
 
-    img = dataset.get_snapshots()
+    img = dataset.get_snapshots()[0]
     area_values = get_areas(img.shape)
 
     while True:
@@ -92,7 +89,7 @@ def run_camera(model: Model):
             run_machine_control(model, img, area_values)
 
 
-def run_example(model: Model):
+def run_example(model: YoloDetector):
     img = cv2.imread("test_image.jpg")
     area_values = get_areas(img.shape)
     run_machine_control(model, img, area_values)
