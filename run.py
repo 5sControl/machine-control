@@ -15,20 +15,20 @@ def run_machine_control(model: YoloDetector, img, area_values):
 
     for i, a_val in enumerate(area_values):
         x1, y1, x2, y2 = a_val.coords
-        huge_box = x1, y1, x2, y2
-        huge_box_plot = x1, y1, x2 - x1, y2 - y1
+        area_box = x1, y1, x2, y2
+        area_box_plot = x1, y1, x2 - x1, y2 - y1
 
-        cv2.putText(img, str(a_val.zone_id), (huge_box_plot[0], huge_box_plot[1] - 10),
+        cv2.putText(img, str(a_val.zone_id), (area_box_plot[0], area_box_plot[1] - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 0, 200), 1, cv2.LINE_AA)
 
         in_area = False
         for (x1, y1, x2, y2), conf in zip(boxes, confs):
-            small_box = x1, y1, x2, y2
-            small_box_plot = x1, y1, x2 - x1, y2 - y1
+            human_box = x1, y1, x2, y2
+            human_box_plot = x1, y1, x2 - x1, y2 - y1
 
-            cv2.rectangle(img, small_box_plot, (255, 0, 0), 1)  # blue
+            cv2.rectangle(img, human_box_plot, (255, 0, 0), 1)  # blue
 
-            if get_intersection(small_box, huge_box):
+            if get_intersection(human_box, area_box, threshold=0.25):
                 in_area = True
                 if len(area_values[i].imgs) == 0 or len(area_values[i].imgs) == 3:
                     area_values[i].imgs.append(img)
@@ -38,9 +38,9 @@ def run_machine_control(model: YoloDetector, img, area_values):
                     area_values[i].date[0] = datetime.datetime.now()
 
         if in_area:
-            cv2.rectangle(img, huge_box_plot, (0, 200, 0), 2)  # green area
+            cv2.rectangle(img, area_box_plot, (0, 200, 0), 2)  # green area
         else:
-            cv2.rectangle(img, huge_box_plot, (0, 0, 200), 2)  # red area
+            cv2.rectangle(img, area_box_plot, (0, 0, 200), 2)  # red area
             if len(area_values[i].imgs) == 1:
                 area_values[i].imgs.append(img)
                 area_values[i].date.append(datetime.datetime.now())
@@ -56,8 +56,6 @@ def run_machine_control(model: YoloDetector, img, area_values):
             area_values[i].imgs = []
             area_values[i].date = []
 
-    # cv2.imshow("img", img)
-
 
 def run_local(model: YoloDetector):
     cap = cv2.VideoCapture(0)
@@ -67,6 +65,7 @@ def run_local(model: YoloDetector):
         succes, img = cap.read()
         if succes:
             run_machine_control(model, img, area_values)
+            cv2.imshow("img", img)
         if cv2.waitKey(1) & 0xFF == 27:
             break
     cap.release()
