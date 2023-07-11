@@ -96,8 +96,11 @@ def create_logger():
     return logger
 
 
-def get_intersection(box_a, box_b):
+def get_intersection(box_a, box_b, threshold=0.25):
     la, ta, ra, ba = box_a
     lb, tb, rb, bb = box_b
     l, t, r, b = max(la, lb), max(ta, tb), min(ra, rb), min(ba, bb)
-    return l <= r and t <= b
+    intersection_area = (r - l + 1) * (b - t + 1)
+    human_area = (ra - la + 1) * (ba - ta + 1)
+    intersection = intersection_area / human_area
+    return intersection > threshold
