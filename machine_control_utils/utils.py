@@ -5,9 +5,19 @@ import logging
 import uuid
 import requests
 import colorlog
+import ast
 
 
 class Area:
+    def update_area(self, coords):
+        x1_area, y1_area, x2_area, y2_area = int(coords['x1']), int(coords['y1']), \
+                                             int(coords['x2']), int(coords['y2'])
+        self.coords = (x1_area, y1_area, x2_area, y2_area)
+        self.date = []
+        self.imgs = []
+        self.zone_name = coords['zoneName']
+        self.zone_id = coords['zoneId']
+
     date = []
     imgs = []
     coords = []
@@ -50,28 +60,22 @@ def send_report_and_save_photo(area):
 
 
 def get_areas(img_shape):
-    import ast
-    areas = os.environ.get("extra")
-
-    area_values = []
-    if areas:
-        areas = ast.literal_eval(areas)
-        for dct in areas:
-            for coords in dct['coords']:
-                x1_area, y1_area, x2_area, y2_area = int(coords['x1']), int(coords['y1']), \
-                                                     int(coords['x2']), int(coords['y2'])
-                area = Area()
-                area.coords = (x1_area, y1_area, x2_area, y2_area)
-                area.date = []
-                area.imgs = []
-                area.zone_name = coords['zoneName']
-                area.zone_id = coords['zoneId']
-                area_values.append(area)
-    else:
-        y, x = img_shape[:2]
+    def process_area(coords):
         area = Area()
-        area.coords, area.date, area.imgs = (10, 10, x - 10, y - 10), [], []
+        area.update_area(coords)
         area_values.append(area)
+
+    areas_data = os.environ.get("extra")
+    area_values, areas = [], []
+
+    if areas_data:
+        areas = ast.literal_eval(areas_data)
+    if not areas:
+        y, x = img_shape[:2]
+        areas = [{"coords": [{"x1": 10, "x2": x - 10, "y1": 10, "y2": y - 10, "zoneName": None, "zoneId": None}]}]
+    for dct in areas:
+        for coords in dct['coords']:
+            process_area(coords)
     return area_values
 
 

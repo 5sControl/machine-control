@@ -58,7 +58,7 @@ def run_machine_control(model: YoloDetector, img, area_values):
 
 
 def run_local(model: YoloDetector):
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     succes, img = cap.read()
     area_values = get_areas(img.shape)
     while True:
@@ -68,6 +68,7 @@ def run_local(model: YoloDetector):
             cv2.imshow("img", img)
         if cv2.waitKey(1) & 0xFF == 27:
             break
+        cv2.imshow("img", img)
     cap.release()
     cv2.destroyAllWindows()
 
