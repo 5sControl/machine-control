@@ -3,6 +3,7 @@ __pycache__
 .gitignore
 .env
 .ipynb_checkpoints
+.github
 
 env/
 temp_models/
