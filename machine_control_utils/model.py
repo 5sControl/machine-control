@@ -1,25 +1,9 @@
 import numpy as np
 from yolo_utils.openvino_functional import detect
 from openvino.runtime import Core
-# from deep_sort_realtime.deepsort_tracker import DeepSort
 
 
-# class Model:
-#     def __init__(self, object_detector_path: str, person_conf: float, n_images: int):
-#         self.object_detector = YoloDetector(object_detector_path, person_conf)
-#         self.object_tracker = DeepSort(max_age=3)
-#         self.n_images = n_images
-#
-#     def predict(self, img):
-#         boxes, confs = self.object_detector.predict_boxes(img)
-#         detections: list = []
-#         for (x1, y1, x2, y2), conf in zip(boxes, confs):
-#             detections.append(((x1, y1, x2 - x1, y2 - y1), conf, "person"))
-#         tracks = self.object_tracker.update_tracks(detections, frame=img)
-#         return tracks
-
-
-class YoloDetector():
+class YoloDetector:
     def __init__(self, model_path: str, person_conf: float, n_images: int):
         self.model = self.init_model(model_path)
         self.person_conf = person_conf
