@@ -9,8 +9,6 @@ env/
 .ipynb_checkpoints
 
 model/
-temp_models/
+all_models/
 
 images/
-
-legacy/
