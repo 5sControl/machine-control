@@ -5,11 +5,11 @@
 ### build image
 * for x86 users
 
-    ```docker build -t 5scontrol/machine_control_python:v1.2.4 .```
+    ```docker build -t 5scontrol/machine_control_python:v1.2.5 .```
 
 * for AArch64 users 
 
-    ```docker buildx build --platform linux/amd64 -t machine_control:v1.2.test .```
+    ```docker buildx build --platform linux/amd64 -t machine_control:v1.2.5 .```
 
 ### run container
     ```docker run -e username=admin -e password=just4Taqtile -e camera_url="http://192.168.1.163/onvif-http/snapshot?Profile_1" -e server_url=http://192.168.1.110 -e folder=images/192.168.1.163 -it <container>```
