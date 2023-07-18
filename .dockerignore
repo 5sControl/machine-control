@@ -1,9 +1,15 @@
 .cache
 __pycache__
+.idea/
+
 .gitignore
+
 .env
+env/
+
+*.ipynb
 .ipynb_checkpoints
 
-env/
-temp_models/
+all_models/
+
 images/

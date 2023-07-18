@@ -6,23 +6,50 @@ import uuid
 import requests
 import colorlog
 import ast
+from datetime import datetime, timedelta
 
 
 class Area:
     def update_area(self, coords):
         x1_area, y1_area, x2_area, y2_area = int(coords['x1']), int(coords['y1']), \
                                              int(coords['x2']), int(coords['y2'])
-        self.coords = (x1_area, y1_area, x2_area, y2_area)
-        self.date = []
         self.imgs = []
-        self.zone_name = coords['zoneName']
-        self.zone_id = coords['zoneId']
+        self.date = []
+        self.coords = (x1_area, y1_area, x2_area, y2_area)
+        self.zone_name = coords["zoneName"]
+        self.zone_id = coords["zoneId"]
 
-    date = []
-    imgs = []
-    coords = []
-    zone_name = None
-    zone_id = None
+    def __len__(self):
+        return len(self.imgs)
+
+    def refresh(self):
+        self.imgs = []
+        self.date = []
+
+    def capture_update(self, img, in_area: bool = True):
+        def update(idx=None):
+            if idx is not None:
+                self.imgs[idx] = img
+                self.date[idx] = datetime.now()
+            else:
+                self.imgs.append(img)
+                self.date.append(datetime.now())
+
+        if in_area:
+            if len(self) == 0:
+                update()
+            elif len(self) == 1:
+                update(idx=0)
+            elif len(self) == 3:
+                if datetime.now() - self.date[0] > timedelta(minutes=30):
+                    self.refresh()
+                update()
+        else:
+            if len(self) == 1:
+                update()
+                update()
+            if len(self) == 3:
+                update(idx=2)
 
 
 def send_report_and_save_photo(area):
@@ -60,23 +87,22 @@ def send_report_and_save_photo(area):
 
 
 def get_areas(img_shape):
-    def process_area(coords):
-        area = Area()
-        area.update_area(coords)
-        area_values.append(area)
+    def process_area(coords: dict):
+        area = Area(coords)
+        areas_data.append(area)
 
-    areas_data = os.environ.get("extra")
-    area_values, areas = [], []
+    extra_data = os.environ.get("extra")
+    areas_data, extra = [], []
 
-    if areas_data:
-        areas = ast.literal_eval(areas_data)
-    if not areas:
+    if extra_data:
+        extra = ast.literal_eval(extra_data)
+    if not extra:
         y, x = img_shape[:2]
-        areas = [{"coords": [{"x1": 10, "x2": x - 10, "y1": 10, "y2": y - 10, "zoneName": None, "zoneId": None}]}]
-    for dct in areas:
+        extra = [{"coords": [{"x1": 10, "x2": x - 10, "y1": 10, "y2": y - 10, "zoneName": None, "zoneId": None}]}]
+    for dct in extra:
         for coords in dct['coords']:
             process_area(coords)
-    return area_values
+    return areas_data
 
 
 def create_logger():
@@ -104,7 +130,9 @@ def get_intersection(box_a, box_b, threshold=0.25):
     la, ta, ra, ba = box_a
     lb, tb, rb, bb = box_b
     l, t, r, b = max(la, lb), max(ta, tb), min(ra, rb), min(ba, bb)
+
+    box_area = (rb - lb + 1) * (bb - tb + 1)
     intersection_area = (r - l + 1) * (b - t + 1)
-    human_area = (ra - la + 1) * (ba - ta + 1)
-    intersection = intersection_area / human_area
-    return intersection > threshold
+
+    intersection_box = intersection_area / box_area
+    return intersection_box > threshold
