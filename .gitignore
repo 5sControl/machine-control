@@ -8,7 +8,6 @@ env/
 *.ipynb
 .ipynb_checkpoints
 
-model/
 all_models/
 
 images/
