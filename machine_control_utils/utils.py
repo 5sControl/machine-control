@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 
 
 class Area:
-    def update_area(self, coords):
+    def __init__(self, coords):
         x1_area, y1_area, x2_area, y2_area = int(coords['x1']), int(coords['y1']), \
                                              int(coords['x2']), int(coords['y2'])
         self.imgs = []
