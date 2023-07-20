@@ -1,0 +1,4 @@
+{
+    "person_conf": 0.5,
+    "model_path": "model/yolov8x.xml"
+}

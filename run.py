@@ -2,22 +2,22 @@ import os
 import cv2
 from typing import List
 from machine_control_utils.HTTPLIB2Capture import HTTPLIB2Capture
-from machine_control_utils.model import YoloDetector
+from logging import Logger
 from machine_control_utils.utils import (
+    Area,
+    predict_human,
     send_report_and_save_photo,
     get_intersection,
     get_areas,
-    Area,
 )
-
 
 GREEN = (0, 200, 0)
 RED = (0, 0, 200)
 BLUE = (255, 0, 0)
 
 
-def run_machine_control(model: YoloDetector, img, areas_data: List[Area]):
-    boxes, confs = model.predict(img)
+def run_machine_control(img, areas_data: List[Area], logger: Logger) -> None:
+    boxes, confidence = predict_human(img, server_url, logger)
 
     for i, a_val in enumerate(areas_data):
         x1, y1, x2, y2 = a_val.coords
@@ -28,7 +28,7 @@ def run_machine_control(model: YoloDetector, img, areas_data: List[Area]):
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 0, 200), 1, cv2.LINE_AA)
 
         in_area = False
-        for (x1, y1, x2, y2), conf in zip(boxes, confs):
+        for (x1, y1, x2, y2), conf in zip(boxes, confidence):
             human_box = x1, y1, x2, y2
             human_box_plot = x1, y1, x2 - x1, y2 - y1
 
@@ -48,25 +48,7 @@ def run_machine_control(model: YoloDetector, img, areas_data: List[Area]):
             areas_data[i].refresh()
 
 
-def run_local(model: YoloDetector):
-    cap = cv2.VideoCapture(1)
-    succes, img = cap.read()
-    areas_data = get_areas(img.shape)
-
-    while True:
-        succes, img = cap.read()
-        if succes:
-            run_machine_control(model, img, areas_data)
-            cv2.imshow("img", img)
-        if cv2.waitKey(1) & 0xFF == 27:
-            break
-        cv2.imshow("img", img)
-
-    cap.release()
-    cv2.destroyAllWindows()
-
-
-def run_camera(model: YoloDetector):
+def run_camera() -> None:
     username = os.environ.get("username")
     password = os.environ.get("password")
     source = os.environ.get("camera_url")
@@ -77,14 +59,32 @@ def run_camera(model: YoloDetector):
     areas_data = get_areas(img.shape)
 
     while True:
-        imgs = dataset.get_snapshots(n_images=model.n_images)
+        imgs = dataset.get_snapshots()
         for img in imgs:
-            run_machine_control(model, img, areas_data)
+            run_machine_control(img, areas_data)
 
 
-def run_example(model: YoloDetector):
+def run_local() -> None:
+    cap = cv2.VideoCapture(1)
+    succes, img = cap.read()
+    areas_data = get_areas(img.shape)
+
+    while True:
+        succes, img = cap.read()
+        if succes:
+            run_machine_control(img, areas_data)
+            cv2.imshow("img", img)
+        if cv2.waitKey(1) & 0xFF == 27:
+            break
+        cv2.imshow("img", img)
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+
+def run_example() -> None:
     img = cv2.imread("test_image.jpg")
     areas_data = get_areas(img.shape)
-    run_machine_control(model, img, areas_data)
+    run_machine_control(img, areas_data)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

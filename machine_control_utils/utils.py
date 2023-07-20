@@ -6,11 +6,12 @@ import uuid
 import requests
 import colorlog
 import ast
+import numpy as np
 from datetime import datetime, timedelta
 
 
 class Area:
-    def update_area(self, coords):
+    def __init__(self, coords: dict):
         x1_area, y1_area, x2_area, y2_area = int(coords['x1']), int(coords['y1']), \
                                              int(coords['x2']), int(coords['y2'])
         self.imgs = []
@@ -86,7 +87,7 @@ def send_report_and_save_photo(area):
         logging.error("send report:\n" + str(exc))
 
 
-def get_areas(img_shape):
+def get_areas(img_shape: set):
     def process_area(coords: dict):
         area = Area(coords)
         areas_data.append(area)
@@ -106,7 +107,7 @@ def get_areas(img_shape):
 
 
 def create_logger():
-    logger = logging.getLogger("min_max_logger")
+    logger = logging.getLogger("machine_control_logger")
     handler = colorlog.StreamHandler()
     handler.setFormatter(
         colorlog.ColoredFormatter(
@@ -136,3 +137,30 @@ def get_intersection(box_a, box_b, threshold=0.25):
 
     intersection_box = intersection_area / box_area
     return intersection_box > threshold
+
+
+def predict_human(img, server_url: str, logger: Logger):
+    PORT = 5000
+    try:
+        response = requests.post(
+            f"{server_url}:{PORT}/predict_human",
+            json={
+                "image": img.tolist()
+            }
+        )
+    except Exception as exc:
+        logger.critical(
+            "Cannot send request. Error - {}".format(exc)
+        )
+        return [None, None]
+    status_code = response.status_code
+    if status_code == 200:
+        n_boxes = response.json().get('n_boxes')
+        coordinates = np.array(response.json().get("coordinates"))
+    else:
+        logger.warning(
+            "Response code = {}.\n response = {}".format(status_code, response)
+        )
+        n_boxes = None
+        coordinates = None
+    return [n_boxes, coordinates]

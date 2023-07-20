@@ -58,7 +58,6 @@ def draw_results(results:Dict, source_image:np.ndarray, label_map:Dict):
     return source_image
 
 
-
 def letterbox(img: np.ndarray, new_shape:Tuple[int, int] = (640, 640), color:Tuple[int, int, int] = (114, 114, 114), auto:bool = False, scale_fill:bool = False, scaleup:bool = False, stride:int = 32):
     """
     Resize image and padding for detection. Takes image as input, 
@@ -147,7 +146,6 @@ def image_to_tensor(image:np.ndarray):
     if input_tensor.ndim == 3:
         input_tensor = np.expand_dims(input_tensor, 0)
     return input_tensor
-
 
 
 def postprocess(

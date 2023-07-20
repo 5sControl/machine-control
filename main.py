@@ -1,20 +1,13 @@
-from machine_control_utils.model import YoloDetector
-from run import run_camera, run_local, run_example
-import warnings
-from dotenv import load_dotenv
+from run import run_machine_control, run_camera, run_local
+from machine_control_utils.utils import create_logger
 
-load_dotenv()
+import warnings
 
 warnings.filterwarnings("ignore")
 
-
-model_path = "model/yolov8x.xml"
-person_conf = 0.5
-n_images = 1
-
-model = YoloDetector(model_path, person_conf, n_images)
+logger = create_logger()
 
 
-run_camera(model)
-# run_local(model)
+# run_camera(model)
+run_local(logger)
 # run_example(model)
