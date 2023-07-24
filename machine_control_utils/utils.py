@@ -26,30 +26,13 @@ class Area:
         self.imgs = []
         self.date = []
 
-    def capture_update(self, img, in_area: bool = True):
-        def update(idx=None):
-            if idx is not None:
-                self.imgs[idx] = img
-                self.date[idx] = datetime.now()
-            else:
-                self.imgs.append(img)
-                self.date.append(datetime.now())
-
-        if in_area:
-            if len(self) == 0:
-                update()
-            elif len(self) == 1:
-                update(idx=0)
-            elif len(self) == 3:
-                if datetime.now() - self.date[0] > timedelta(minutes=30):
-                    self.refresh()
-                update()
+    def update(self, img, idx=None):
+        if idx is not None:
+            self.imgs[idx] = img
+            self.date[idx] = datetime.now()
         else:
-            if len(self) == 1:
-                update()
-                update()
-            if len(self) == 3:
-                update(idx=2)
+            self.imgs.append(img)
+            self.date.append(datetime.now())
 
 
 def send_report_and_save_photo(area):
