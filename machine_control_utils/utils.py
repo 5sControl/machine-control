@@ -8,6 +8,7 @@ import colorlog
 import ast
 import numpy as np
 from datetime import datetime, timedelta
+from logging import Logger
 
 
 class Area:
@@ -36,10 +37,7 @@ class Area:
             self.date.append(datetime.now())
 
 
-def send_report_and_save_photo(area):
-    server_url = os.environ.get("server_url")
-    folder = os.environ.get("folder")
-
+def send_report_and_save_photo(area, folder: str, server_url: str):
     pathlib.Path(folder).mkdir(exist_ok=True, parents=True)
 
     photos = []
@@ -70,12 +68,11 @@ def send_report_and_save_photo(area):
         logging.error("send report:\n" + str(exc))
 
 
-def get_areas(img_shape: set):
+def get_areas(img_shape: set, extra_data):
     def process_area(coords: dict):
         area = Area(coords)
         areas_data.append(area)
 
-    extra_data = os.environ.get("extra")
     areas_data, extra = [], []
 
     if extra_data:
