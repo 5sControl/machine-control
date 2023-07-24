@@ -9,6 +9,7 @@ from machine_control_utils.utils import (
     get_areas,
     Area,
 )
+from datetime import datetime, timedelta
 
 
 GREEN = (0, 200, 0)
@@ -36,8 +37,21 @@ def run_machine_control(model: YoloDetector, img, areas_data: List[Area]):
 
             if get_intersection(human_box, area_box, threshold=0.25):
                 in_area = True
+                if len(areas_data[i]) == 0:
+                    areas_data[i].update(img)
+                elif len(areas_data[i]) == 1:
+                    areas_data[i].update(img, idx=0)
+                elif len(areas_data[i]) == 3:
+                    if datetime.now() - areas_data[i].date[0] > timedelta(minutes=30):
+                        areas_data[i].refresh()
+                    areas_data[i].update(img)
 
-        areas_data[i].capture_update(img, in_area=in_area)
+        if not in_area:
+            if len(areas_data[i]) == 1:
+                areas_data[i].update(img)
+                areas_data[i].update(img)
+            if len(areas_data[i]) == 3:
+                areas_data[i].update(img, idx=2)
 
         color = GREEN if in_area else RED
         cv2.rectangle(img, area_box_plot, color, 2)
