@@ -1,0 +1,4 @@
+{
+    "intersection_threshold": 0.25,
+    "timedelta_minutes": 30
+}
