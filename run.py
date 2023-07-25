@@ -40,16 +40,17 @@ def run_machine_control(dataset: HTTPLIB2Capture, logger: Logger,
 
                 cv2.rectangle(img, human_box_plot, BLUE, 1)
 
-                if get_intersection(human_box, area_box, threshold=INTERSECTION_THRESHOLD):
+                if get_intersection(human_box, area_box, threshold=0.25):
                     in_area = True
                     if len(areas_data[i]) == 0:
                         areas_data[i].update(img)
                     elif len(areas_data[i]) == 1:
                         areas_data[i].update(img, idx=0)
                     elif len(areas_data[i]) == 3:
-                        if datetime.now() - areas_data[i].date[0] > timedelta(minutes=TIMEDELTA_MINUTES):
+                        if datetime.now() - areas_data[i].date[0] > timedelta(minutes=30):
                             areas_data[i].refresh()
-                        areas_data[i].update(img)
+                        else:
+                            areas_data[i].update(img)
 
             if not in_area:
                 if len(areas_data[i]) == 1:
