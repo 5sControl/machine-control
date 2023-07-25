@@ -1,4 +1,3 @@
-import os
 import pathlib
 import cv2
 import logging
@@ -7,7 +6,7 @@ import requests
 import colorlog
 import ast
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime
 from logging import Logger
 
 
@@ -121,18 +120,20 @@ def get_intersection(box_a, box_b, threshold=0.25):
 
 def predict_human(img, server_url: str, logger: Logger):
     PORT = 5000
-    try:
-        response = requests.post(
-            f"{server_url}:{PORT}/predict_human",
-            json={
-                "image": img.tolist()
-            }
-        )
-    except Exception as exc:
-        logger.critical(
-            "Cannot send request. Error - {}".format(exc)
-        )
-        return [None, None]
+    while True:
+        try:
+            response = requests.post(
+                f"{server_url}:{PORT}/predict_human",
+                json={
+                    "image": img.tolist()
+                }
+            )
+            break
+        except Exception as exc:
+            logger.critical(
+                "Cannot send request. Error - {}".format(exc)
+            )
+            continue
     status_code = response.status_code
     if status_code == 200:
         n_boxes = response.json().get('n_boxes')
