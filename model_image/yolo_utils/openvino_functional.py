@@ -1,8 +1,8 @@
 from typing import Tuple, Dict
 import cv2
 
-from yolo_utils.plotting import colors
-from yolo_utils import ops
+from model_image.yolo_utils.plotting import colors
+from model_image.yolo_utils import ops
 import torch
 import numpy as np
 import random

@@ -65,21 +65,3 @@ def run_machine_control(dataset: HTTPLIB2Capture, logger: Logger,
             if len(areas_data[i]) >= 4:
                 send_report_and_save_photo(areas_data[i], folder, server_url)
                 areas_data[i].refresh()
-
-
-def run_local(logger: Logger) -> None:
-    cap = cv2.VideoCapture(1)
-    succes, img = cap.read()
-    areas_data = get_areas(img.shape)
-
-    while True:
-        succes, img = cap.read()
-        if succes:
-            run_machine_control(img, areas_data, logger)
-            cv2.imshow("img", img)
-        if cv2.waitKey(1) & 0xFF == 27:
-            break
-        cv2.imshow("img", img)
-
-    cap.release()
-    cv2.destroyAllWindows()

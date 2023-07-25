@@ -2,7 +2,6 @@ import httplib2
 import numpy as np
 import cv2
 import logging
-import time
 
 
 class HTTPLIB2Capture:
@@ -35,24 +34,6 @@ class HTTPLIB2Capture:
             if cv2.waitKey(1) & 0xFF == 27:
                 return None
             return img
-
-
-        # cap = cv2.VideoCapture(1)
-        # succes, img = cap.read()
-        # areas_data = get_areas(img.shape)
-        #
-        # while True:
-        #     succes, img = cap.read()
-        #     if succes:
-        #         run_machine_control(img, areas_data, logger)
-        #         cv2.imshow("img", img)
-        #     if cv2.waitKey(1) & 0xFF == 27:
-        #         break
-        #     cv2.imshow("img", img)
-        #
-        # cap.release()
-        # cv2.destroyAllWindows()
-
 
     def get_snapshot_camera(self):
         while True:
