@@ -114,8 +114,12 @@ def get_intersection(box_a, box_b, threshold=0.25):
     lb, tb, rb, bb = box_b
     l, t, r, b = max(la, lb), max(ta, tb), min(ra, rb), min(ba, bb)
 
+    human_area = (ra - la + 1) * (ba - ta + 1)
     box_area = (rb - lb + 1) * (bb - tb + 1)
-    intersection_area = (r - l + 1) * (b - t + 1)
+    intersection_area = max(0, (r - l + 1)) * max(0, (b - t + 1))
 
-    intersection_box = intersection_area / box_area
+    if box_area > human_area:
+        intersection_box = intersection_area / human_area
+    else:
+        intersection_box = intersection_area / box_area
     return intersection_box > threshold

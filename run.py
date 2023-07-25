@@ -44,7 +44,8 @@ def run_machine_control(model: YoloDetector, img, areas_data: List[Area]):
                 elif len(areas_data[i]) == 3:
                     if datetime.now() - areas_data[i].date[0] > timedelta(minutes=30):
                         areas_data[i].refresh()
-                    areas_data[i].update(img)
+                    else:
+                        areas_data[i].update(img)
 
         if not in_area:
             if len(areas_data[i]) == 1:

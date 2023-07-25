@@ -3,7 +3,7 @@ from run import run_camera, run_local, run_example
 import warnings
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv('config/.env')
 
 warnings.filterwarnings("ignore")
 
