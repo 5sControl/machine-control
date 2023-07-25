@@ -1,7 +1,7 @@
 import json
-from dotenv import load_dotenv
-
-load_dotenv("flask_config.json/.env")
+# from dotenv import load_dotenv
+#
+# load_dotenv("flask_config/.env")
 
 with open("flask_config/flask_configs.json", "r") as conf:
     configs = json.load(conf)
