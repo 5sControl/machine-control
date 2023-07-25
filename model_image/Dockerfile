@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.9-slim
 RUN apt-get update
 COPY requirements.txt .
 
@@ -12,4 +12,4 @@ WORKDIR /var/www/5scontrol
 COPY . .
 RUN mkdir -p /usr/src/app
 EXPOSE 5000
-CMD [ "flask", "run", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["python", "-m", "flask", "run", "--host", "0.0.0.0", "--port", "5000"]

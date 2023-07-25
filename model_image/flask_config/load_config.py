@@ -3,7 +3,7 @@ import json
 #
 # load_dotenv("flask_config/.env")
 
-with open("flask_config/flask_configs.json", "r") as conf:
+with open("flask_config/flask_config.json", "r") as conf:
     configs = json.load(conf)
     MODEL_PATH = configs.get("person_conf")
     PERSOR_CONF = configs.get("model_path")
