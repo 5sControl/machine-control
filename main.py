@@ -13,11 +13,9 @@ username = os.environ.get("username")
 password = os.environ.get("password")
 folder = os.environ.get("folder")
 extra = os.environ.get("extra")
-# source = os.environ.get("camera_url")
+source = os.environ.get("camera_url")
 server_url = os.environ.get("server_url")
 
-# server_url = 'http://127.0.0.2'
-source = 'local'
 # TODO: wrong status server_url status, change it...
 # TODO: and change the same in model_image...
 

@@ -139,7 +139,7 @@ def predict_human(img, server_url: str, logger: Logger):
     boxes, confidence = None, None
     if status_code == 200:
         boxes = np.array(response.json().get('boxes'))
-        confidence = np.array(response.json().get("confidence"))
+        confidence = np.array(response.json().get('confidence'))
     else:
         logger.warning(
             "Response code = {}.\n response = {}".format(status_code, response)

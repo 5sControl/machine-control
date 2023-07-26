@@ -1,5 +1,4 @@
 import abc
-from typing import Union
 import numpy as np
 from yolo_utils.openvino_functional import detect
 from openvino.runtime import Core
@@ -30,7 +29,7 @@ class YoloDetector(ObjectDetectionModel):
         res = detect(img, self.model)[0]["det"]
         boxes, confidence = [], []
         if len(res):
-            xyxy = res[:, :4].numpy().astype(np.uint16)
+            xyxy = res[:, :4].numpy().astype(np.uint8)
             confidence = res[:, 4].numpy()
             classes = res[:, 5].numpy().astype(np.uint8)
 

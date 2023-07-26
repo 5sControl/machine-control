@@ -37,17 +37,18 @@ def run_machine_control(dataset: HTTPLIB2Capture, logger: Logger,
             for (x1, y1, x2, y2), conf in zip(boxes, confidence):
                 human_box = x1, y1, x2, y2
                 human_box_plot = x1, y1, x2 - x1, y2 - y1
+                # TODO: bag with human box (wrong coordinates, dont plot BLUE)
 
                 cv2.rectangle(img, human_box_plot, BLUE, 1)
 
-                if get_intersection(human_box, area_box, threshold=0.25):
+                if get_intersection(human_box, area_box, threshold=INTERSECTION_THRESHOLD):
                     in_area = True
                     if len(areas_data[i]) == 0:
                         areas_data[i].update(img)
                     elif len(areas_data[i]) == 1:
                         areas_data[i].update(img, idx=0)
                     elif len(areas_data[i]) == 3:
-                        if datetime.now() - areas_data[i].date[0] > timedelta(minutes=30):
+                        if datetime.now() - areas_data[i].date[0] > timedelta(minutes=TIMEDELTA_MINUTES):
                             areas_data[i].refresh()
                         else:
                             areas_data[i].update(img)
@@ -66,3 +67,8 @@ def run_machine_control(dataset: HTTPLIB2Capture, logger: Logger,
             if len(areas_data[i]) >= 4:
                 send_report_and_save_photo(areas_data[i], folder, server_url)
                 areas_data[i].refresh()
+
+        if dataset.is_local:
+            cv2.imshow("img", img)
+            if cv2.waitKey(1) & 0xFF == 27:
+                break

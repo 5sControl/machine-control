@@ -1,4 +1,4 @@
-# import httplib2
+import httplib2
 import numpy as np
 import cv2
 import logging
@@ -31,9 +31,6 @@ class HTTPLIB2Capture:
         while True:
             succes, img = self.cap.read()
             if succes:
-                cv2.imshow("img", img)
-                if cv2.waitKey(1) & 0xFF == 27:
-                    break
                 return img
 
     def get_snapshot_camera(self):
