@@ -21,13 +21,13 @@ class YoloDetector(ObjectDetectionModel):
         super().__init__(model_path, person_conf)
         self.init_model(model_path)
 
-    def init_model(self, model_path) -> None:
+    def init_model(self, model_path: str) -> None:
         core = Core()
         read_model = core.read_model(model_path)
         self.model = core.compile_model(read_model)
 
-    def predict(self, img) -> tuple[Union[np.array, list], Union[np.array, list]]:
-        res = detect(np.array(img), self.model)[0]["det"]
+    def predict(self, img: np.array) -> tuple[np.array, np.array]:
+        res = detect(img, self.model)[0]["det"]
         boxes, confidence = [], []
         if len(res):
             xyxy = res[:, :4].numpy().astype(np.uint16)

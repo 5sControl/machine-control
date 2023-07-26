@@ -124,28 +124,24 @@ def get_intersection(box_a, box_b, threshold=0.25):
 
 def predict_human(img, server_url: str, logger: Logger):
     PORT = 5000
-    while True:
-        try:
-            response = requests.post(
-                f"{server_url}:{PORT}/predict_human",
-                json={
-                    "image": img.tolist()
-                }
-            )
-            break
-        except Exception as exc:
-            logger.critical(
-                "Cannot send request. Error - {}".format(exc)
-            )
-            continue
+    try:
+        response = requests.post(
+            f"{server_url}:{PORT}/predict_human",
+            json={
+                "img": img.tolist()
+            }
+        )
+    except Exception as exc:
+        logger.critical(
+            "Cannot send request. Error - {}".format(exc)
+        )
     status_code = response.status_code
+    boxes, confidence = None, None
     if status_code == 200:
-        n_boxes = response.json().get('n_boxes')
-        coordinates = np.array(response.json().get("coordinates"))
+        boxes = np.array(response.json().get('boxes'))
+        confidence = np.array(response.json().get("confidence"))
     else:
         logger.warning(
             "Response code = {}.\n response = {}".format(status_code, response)
         )
-        n_boxes = None
-        coordinates = None
-    return [n_boxes, coordinates]
+    return boxes, confidence

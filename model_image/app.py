@@ -3,6 +3,7 @@ from ObjectDetectionModel import YoloDetector
 from flask_config.load_config import *
 import logging
 import colorlog
+import numpy as np
 
 
 app = Flask(__name__)
@@ -26,13 +27,12 @@ logger.propagate = False
 
 @app.route('/predict_human', methods=['POST'])
 def predict_human():
-    if request.method == 'POST':
-        img = request.json['img']
-        boxes, confidence = model.predict(img)
-        logger.info("Request to predict_human: " + str(boxes))
-        return jsonify(
-            {
-                'boxes': boxes,
-                'confidence': confidence
-            }
-        )
+    img = np.array(request.json['img'], dtype='uint8')
+    boxes, confidence = model.predict(img)
+    logger.info("Request to predict_human: Success")
+    return jsonify(
+        {
+            'boxes': boxes.tolist(),
+            'confidence': confidence.tolist()
+        }
+    )
