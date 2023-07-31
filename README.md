@@ -49,5 +49,7 @@
 
 **Responce**: https://github.com/5sControl/QA_documentation/blob/main/algorithms/report-with-photos_machine-control.json
 
+- You have to download models:
+
 **Models**: https://drive.google.com/file/d/1oHgIA6D8vgOfWl5AjyclPMvl21Vj_O_G/view?usp=sharing
-you have to download models 
+
