@@ -1,6 +1,7 @@
 import math
 import torch
 
+
 def box_iou(box1, box2, eps=1e-7):
     """
     Calculate intersection-over-union (IoU) of boxes.

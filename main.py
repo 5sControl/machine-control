@@ -1,20 +1,23 @@
-from machine_control_utils.model import YoloDetector
-from run import run_camera, run_local, run_example
-import warnings
+import os
+from run import run_machine_control
+from machine_control_utils.utils import create_logger
+from machine_control_utils.HTTPLIB2Capture import HTTPLIB2Capture
 from dotenv import load_dotenv
-
-load_dotenv('config/.env')
+import warnings
 
 warnings.filterwarnings("ignore")
 
+load_dotenv("config/.env")
 
-model_path = "model/yolov8x.xml"
-person_conf = 0.5
-n_images = 1
+username = os.environ.get("username")
+password = os.environ.get("password")
+folder = os.environ.get("folder")
+extra = os.environ.get("extra")
+source = os.environ.get("camera_url")
+server_url = os.environ.get("server_url")
 
-model = YoloDetector(model_path, person_conf, n_images)
 
+logger = create_logger()
+dataset = HTTPLIB2Capture(source, username=username, password=password)
 
-run_camera(model)
-# run_local(model)
-# run_example(model)
+run_machine_control(dataset, logger, extra, server_url, folder)

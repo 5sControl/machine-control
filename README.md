@@ -2,17 +2,40 @@
 
 ## Docker 
 
-### build image
-* for x86 users
+### Build image for machine_control_python algorithm
+- For x86 users
 
-    ```docker build -t 5scontrol/machine_control_python:v1.2.5 .```
+    ```docker build -t 5scontrol/machine_control_python:v1.2.9 .```
 
-* for AArch64 users 
+- for AArch64 users 
 
-    ```docker buildx build --platform linux/amd64 -t 5scontrol/machine_control_python:v1.2.5 .```
+    ```docker buildx build --platform linux/amd64 -t 5scontrol/machine_control_python:v1.2.9 .```
 
-### run container
+
+### Build image for machine_control_python_server_model algorithm
+
+- For x86 users
+
+    ```docker build -t 5scontrol/machine_control_python_model_server:v1.0.0 .```
+
+- For AArch64 users 
+
+    ```docker buildx build --platform linux/amd64 -t 5scontrol/machine_control_python_model_server:v1.0.0 .```
+
+
+
+### Run containers
+
+*Check id of container:* ```docker image list```
+
+- For machine_control_python
+
     ```docker run -e username=admin -e password=just4Taqtile -e camera_url="http://192.168.1.163/onvif-http/snapshot?Profile_1" -e server_url=http://192.168.1.110 -e folder=images/192.168.1.163 -it <container>```
+
+- For machine_control_python_server_model
+
+    ```docker run -it <container>```
+
 
 [optional]: -e extra=[...]
 

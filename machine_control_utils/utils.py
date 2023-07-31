@@ -1,4 +1,3 @@
-import os
 import pathlib
 import cv2
 import logging
@@ -6,7 +5,9 @@ import uuid
 import requests
 import colorlog
 import ast
-from datetime import datetime, timedelta
+import numpy as np
+from datetime import datetime
+from logging import Logger
 
 
 class Area:
@@ -35,10 +36,7 @@ class Area:
             self.date.append(datetime.now())
 
 
-def send_report_and_save_photo(area):
-    server_url = os.environ.get("server_url")
-    folder = os.environ.get("folder")
-
+def send_report_and_save_photo(area, folder: str, server_url: str):
     pathlib.Path(folder).mkdir(exist_ok=True, parents=True)
 
     photos = []
@@ -69,12 +67,11 @@ def send_report_and_save_photo(area):
         logging.error("send report:\n" + str(exc))
 
 
-def get_areas(img_shape):
+def get_areas(img_shape: set, extra_data):
     def process_area(coords: dict):
         area = Area(coords)
         areas_data.append(area)
 
-    extra_data = os.environ.get("extra")
     areas_data, extra = [], []
 
     if extra_data:
@@ -89,7 +86,7 @@ def get_areas(img_shape):
 
 
 def create_logger():
-    logger = logging.getLogger("min_max_logger")
+    logger = logging.getLogger("machine_control_logger")
     handler = colorlog.StreamHandler()
     handler.setFormatter(
         colorlog.ColoredFormatter(
@@ -123,3 +120,28 @@ def get_intersection(box_a, box_b, threshold=0.25):
     else:
         intersection_box = intersection_area / box_area
     return intersection_box > threshold
+
+
+def predict_human(img, server_url: str, logger: Logger):
+    PORT = 5000
+    try:
+        response = requests.post(
+            f"{server_url}:{PORT}/predict_human",
+            json={
+                "img": img.tolist()
+            }
+        )
+    except Exception as exc:
+        logger.critical(
+            "Cannot send request. Error - {}".format(exc)
+        )
+    status_code = response.status_code
+    boxes, confidence = None, None
+    if status_code == 200:
+        boxes = np.array(response.json().get('boxes'))
+        confidence = np.array(response.json().get('confidence'))
+    else:
+        logger.warning(
+            "Response code = {}.\n response = {}".format(status_code, response)
+        )
+    return boxes, confidence

@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Colors:
     def __init__(self):
         hexs = ('FF3838', 'FF9D97', 'FF701F', 'FFB21D', 'CFD231', '48F90A', '92CC17', '3DDB86', '1A9334', '00D4BB',

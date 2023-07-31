@@ -2,29 +2,43 @@ import httplib2
 import numpy as np
 import cv2
 import logging
-import time
 
 
 class HTTPLIB2Capture:
     def __init__(self, path, **kwargs):
-        self.h = httplib2.Http(".cache")
         self.camera_url = path
         self.username = kwargs.get("username", None)
         self.password = kwargs.get("password", None)
-        self.h.add_credentials(self.username, self.password)
+
+        self.is_local = self.camera_url == 'local'
+
+        if self.is_local:
+            self.cap = cv2.VideoCapture(1)
+        else:
+            self.h = httplib2.Http(".cache")
+            self.h.add_credentials(self.username, self.password)
+
         if self.username is None or self.password is None:
             logging.warning("Empty password or username")
 
-    def get_snapshots(self, n_images=1) -> list:
-        imgs = [None] * n_images
-        counter = 0 
-        while counter < n_images:
+    def get_snapshot(self):
+        if self.is_local:
+            return self.get_snapshot_local()
+        else:
+            return self.get_snapshot_camera()
+
+    def get_snapshot_local(self):
+        while True:
+            succes, img = self.cap.read()
+            if succes:
+                return img
+
+    def get_snapshot_camera(self):
+        while True:
             img = self.try_get_snapshot()
             if img is None:
                 continue
-            imgs[counter] = img
-            counter += 1
-        return imgs
+            return img
 
     def try_get_snapshot(self):
         try:

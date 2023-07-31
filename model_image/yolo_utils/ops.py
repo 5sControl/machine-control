@@ -8,7 +8,6 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import torchvision
-
 from .metrics import box_iou
 
 
