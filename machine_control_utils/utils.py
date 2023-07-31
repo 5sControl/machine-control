@@ -10,6 +10,9 @@ from datetime import datetime
 from logging import Logger
 
 
+PORT = 5002
+
+
 class Area:
     def __init__(self, coords):
         x1_area, y1_area, x2_area, y2_area = int(coords['x1']), int(coords['y1']), \
@@ -123,7 +126,6 @@ def get_intersection(box_a, box_b, threshold=0.25):
 
 
 def predict_human(img, server_url: str, logger: Logger):
-    PORT = 5000
     try:
         response = requests.post(
             f"{server_url}:{PORT}/predict_human",

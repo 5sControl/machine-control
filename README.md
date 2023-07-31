@@ -11,6 +11,7 @@
 
     ```docker buildx build --platform linux/amd64 -t 5scontrol/machine_control_python:v1.2.9 .```
 
+
 ### Build image for machine_control_python_server_model algorithm
 
 - For x86 users
@@ -20,6 +21,8 @@
 - For AArch64 users 
 
     ```docker buildx build --platform linux/amd64 -t 5scontrol/machine_control_python_model_server:v1.0.0 .```
+
+
 
 ### Run containers
 
@@ -43,6 +46,8 @@
 
   ```docker image push machine_control_python_server_model:v1.0.0```
 
+[optional]: -e extra=[...]
+
 ---
 
 **Request**: https://github.com/5sControl/QA_documentation/blob/main/algorithms/run_machine-control.json
@@ -52,4 +57,4 @@
 - You have to download models:
 
 **Models**: https://drive.google.com/file/d/1oHgIA6D8vgOfWl5AjyclPMvl21Vj_O_G/view?usp=sharing
-
+you have to download models 
