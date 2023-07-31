@@ -11,7 +11,6 @@
 
     ```docker buildx build --platform linux/amd64 -t 5scontrol/machine_control_python:v1.2.9 .```
 
-
 ### Build image for machine_control_python_server_model algorithm
 
 - For x86 users
@@ -21,8 +20,6 @@
 - For AArch64 users 
 
     ```docker buildx build --platform linux/amd64 -t 5scontrol/machine_control_python_model_server:v1.0.0 .```
-
-
 
 ### Run containers
 
@@ -36,8 +33,15 @@
 
     ```docker run -it <container>```
 
+### Push images
 
-[optional]: -e extra=[...]
+- For machine_control_python:
+
+  ```docker image push machine_control_python:v1.2.9```
+
+- For machine_control_python_server_model:
+
+  ```docker image push machine_control_python_server_model:v1.0.0```
 
 ---
 
