@@ -27,7 +27,7 @@ class YoloDetector(ObjectDetectionModel):
 
     def predict(self, img: np.array) -> tuple[np.array, np.array]:
         res = detect(img, self.model)[0]["det"]
-        boxes, confidence = [], []
+        boxes, confidence = np.array([]), np.array([])
         if len(res):
             xyxy = res[:, :4].numpy().astype(np.uint8)
             confidence = res[:, 4].numpy()
