@@ -99,7 +99,7 @@ def create_logger():
                 "DEBUG": "cyan",
                 "INFO": "green",
                 "WARNING": "yellow",
-                "CRITICAL": "bold_red,bg_white",
+                "CRITICAL": "red",
             },
         )
     )
@@ -135,10 +135,9 @@ def predict_human(img, server_url: str, logger: Logger):
         )
     except Exception as exc:
         logger.critical(
-            "Cannot send request. Error - {}".format(exc)
-        )
+            "Cannot send request. Error - {}".format(exc))
     status_code = response.status_code
-    boxes, confidence = None, None
+    boxes, confidence = [], []
     if status_code == 200:
         boxes = np.array(response.json().get('boxes'))
         confidence = np.array(response.json().get('confidence'))

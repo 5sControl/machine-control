@@ -21,6 +21,7 @@ def run_machine_control(dataset: HTTPLIB2Capture, logger: Logger,
     img = dataset.get_snapshot()
     areas_data = get_areas(img.shape, extra)
 
+    logger.info(f'{extra=}')
     while True:
         img = dataset.get_snapshot()
         boxes, confidence = predict_human(img, server_url, logger)
