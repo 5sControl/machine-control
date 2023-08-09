@@ -4,6 +4,8 @@ from flask_config.load_config import *
 import logging
 import colorlog
 import numpy as np
+from PIL import Image
+import io
 
 
 app = Flask(__name__)
@@ -24,15 +26,18 @@ logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 logger.propagate = False
 
+convert_bytes2image = lambda bytes: np.array(Image.open(io.BytesIO(bytes)), dtype=np.uint8)
 
-@app.route('/predict_human', methods=['POST'])
+
+@app.route("/predict_human", methods=["POST"])
 def predict_human():
-    img = np.array(request.json['img'], dtype='uint8')
-    boxes, confidence = model.predict(img)
-    logger.info("Request to predict_human: Success")
-    return jsonify(
-        {
-            'boxes': boxes.tolist(),
-            'confidence': confidence.tolist()
-        }
-    )
+    if request.method == "POST":
+        img = convert_bytes2image(request.files["img"].read())
+        boxes, confidence = model.predict(img)
+        logger.info("Request to predict_human: Success")
+        return jsonify(
+            {
+                "boxes": boxes.tolist(),
+                "confidence": confidence.tolist()
+            }
+        )
