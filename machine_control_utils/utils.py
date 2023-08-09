@@ -8,6 +8,8 @@ import ast
 import numpy as np
 from datetime import datetime
 from logging import Logger
+from PIL import Image
+import io
 
 
 PORT = 5002
@@ -125,24 +127,27 @@ def get_intersection(box_a, box_b, threshold=0.25):
     return intersection_box > threshold
 
 
+def _convert_image2bytes(image: np.array, format='PNG') -> io.BytesIO:
+    pil_image = Image.fromarray(image)
+    img_byte_arr = io.BytesIO()
+    pil_image.save(img_byte_arr, format=format)
+    img_byte_arr.seek(0)
+    return img_byte_arr
+
+
 def predict_human(img, server_url: str, logger: Logger):
     try:
         response = requests.post(
             f"{server_url}:{PORT}/predict_human",
-            json={
-                "img": img.tolist()
+            files={
+                "img": _convert_image2bytes(img)
             }
         )
+        response.raise_for_status()
+        boxes = np.array(response.json().get("boxes"))
+        confidence = np.array(response.json().get("confidence"))
     except Exception as exc:
+        boxes, confidence = [], []
         logger.critical(
             "Cannot send request. Error - {}".format(exc))
-    status_code = response.status_code
-    boxes, confidence = [], []
-    if status_code == 200:
-        boxes = np.array(response.json().get('boxes'))
-        confidence = np.array(response.json().get('confidence'))
-    else:
-        logger.warning(
-            "Response code = {}.\n response = {}".format(status_code, response)
-        )
     return boxes, confidence
