@@ -38,7 +38,6 @@ def run_machine_control(dataset: HTTPLIB2Capture, logger: Logger,
             for (x1, y1, x2, y2), conf in zip(boxes, confidence):
                 human_box = x1, y1, x2, y2
                 human_box_plot = x1, y1, x2 - x1, y2 - y1
-                # TODO: bag with human box (wrong coordinates, dont plot BLUE)
 
                 cv2.rectangle(img, human_box_plot, BLUE, 1)
 
