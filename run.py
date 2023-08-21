@@ -64,7 +64,7 @@ def run_machine_control(model: YoloDetector, img, areas_data: List[Area]):
 
 
 def run_local(model: YoloDetector):
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     succes, img = cap.read()
     areas_data = get_areas(img.shape)
 

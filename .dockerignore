@@ -11,5 +11,5 @@ env/
 .ipynb_checkpoints
 
 all_models/
-
+model_image/
 images/
