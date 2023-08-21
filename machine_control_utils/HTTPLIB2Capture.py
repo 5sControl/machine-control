@@ -1,4 +1,4 @@
-import httplib2
+# import httplib2
 import numpy as np
 import cv2
 import logging
@@ -13,7 +13,7 @@ class HTTPLIB2Capture:
         self.is_local = self.camera_url == 'local'
 
         if self.is_local:
-            self.cap = cv2.VideoCapture(1)
+            self.cap = cv2.VideoCapture(0)
         else:
             self.h = httplib2.Http(".cache")
             self.h.add_credentials(self.username, self.password)
