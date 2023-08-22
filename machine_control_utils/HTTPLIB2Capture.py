@@ -1,4 +1,4 @@
-# import httplib2
+import httplib2
 import numpy as np
 import cv2
 import logging
