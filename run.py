@@ -39,10 +39,10 @@ def run_machine_control(dataset: HTTPLIB2Capture, logger: Logger,
                 human_box = x1, y1, x2, y2
                 human_box_plot = x1, y1, x2 - x1, y2 - y1
 
-                cv2.rectangle(img, human_box_plot, BLUE, 1)
-
                 if get_intersection(human_box, area_box, threshold=INTERSECTION_THRESHOLD):
                     in_area = True
+                    cv2.rectangle(img, human_box_plot, BLUE, 1)
+
                     if len(areas_data[i]) == 0:
                         areas_data[i].update(img)
                     elif len(areas_data[i]) == 1:
