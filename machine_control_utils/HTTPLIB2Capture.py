@@ -1,4 +1,4 @@
-import httplib2
+import requests
 import numpy as np
 import cv2
 import logging
@@ -14,9 +14,6 @@ class HTTPLIB2Capture:
 
         if self.is_local:
             self.cap = cv2.VideoCapture(1)
-        else:
-            self.h = httplib2.Http(".cache")
-            self.h.add_credentials(self.username, self.password)
 
         if self.username is None or self.password is None:
             logging.warning("Empty password or username")
@@ -42,10 +39,10 @@ class HTTPLIB2Capture:
 
     def try_get_snapshot(self):
         try:
-            resp, content = self.h.request(self.camera_url, "GET", body="foobar")
-            img_array = np.frombuffer(content, np.uint8)
+            resp = requests.get(self.camera_url)
+            img_array = np.frombuffer(resp.content, np.uint8)
             image = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
             return image
-        except Exception:
-            logging.warning("Empty image. Skipping iteration...")
+        except Exception as exc:
+            logging.warning(f"Empty image.\n {exc} \n Skipping iteration...")
             return None
