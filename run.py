@@ -9,7 +9,7 @@ from machine_control_utils.utils import (
     get_areas,
 )
 from datetime import datetime, timedelta
-
+import time
 
 GREEN = (0, 200, 0)
 RED = (0, 0, 200)
@@ -20,9 +20,13 @@ def run_machine_control(dataset: HTTPLIB2Capture, logger: Logger,
                         extra: str, server_url: str, folder: str) -> None:
     img = dataset.get_snapshot()
     areas_data = get_areas(img.shape, extra)
+    start = end = time.time()
 
     logger.info(f'{extra=}')
     while True:
+        total_run_time = end - time.time()
+        if 0 < total_run_time < 1:
+            time.sleep(1 - total_run_time)
         img = dataset.get_snapshot()
         boxes, confidence = predict_human(img, server_url, logger)
 
@@ -72,3 +76,5 @@ def run_machine_control(dataset: HTTPLIB2Capture, logger: Logger,
             cv2.imshow("img", img)
             if cv2.waitKey(1) & 0xFF == 27:
                 break
+
+        end = time.time()
