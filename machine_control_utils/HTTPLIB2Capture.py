@@ -31,13 +31,6 @@ class HTTPLIB2Capture:
                 return img
 
     def _get_snapshot_camera(self):
-        while True:
-            img = self._try_get_snapshot()
-            if img is None:
-                continue
-            return img
-
-    def _try_get_snapshot(self):
         try:
             resp = requests.get(self.camera_url)
             img_array = np.frombuffer(resp.content, np.uint8)
