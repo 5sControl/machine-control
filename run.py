@@ -24,10 +24,15 @@ def run_machine_control(dataset: HTTPLIB2Capture, logger: Logger,
 
     logger.info(f'{extra=}')
     while True:
-        total_run_time = end - time.time()
+        total_run_time = end - start
         if 0 < total_run_time < 1:
             time.sleep(1 - total_run_time)
+        start = time.time()
+
         img = dataset.get_snapshot()
+        if img is None:
+            end = time.time()
+            continue
         boxes, confidence = predict_human(img, server_url, logger)
 
         for i, a_val in enumerate(areas_data):
