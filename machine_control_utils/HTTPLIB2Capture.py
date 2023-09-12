@@ -20,24 +20,24 @@ class HTTPLIB2Capture:
 
     def get_snapshot(self):
         if self.is_local:
-            return self.get_snapshot_local()
+            return self._get_snapshot_local()
         else:
-            return self.get_snapshot_camera()
+            return self._get_snapshot_camera()
 
-    def get_snapshot_local(self):
+    def _get_snapshot_local(self):
         while True:
             succes, img = self.cap.read()
             if succes:
                 return img
 
-    def get_snapshot_camera(self):
+    def _get_snapshot_camera(self):
         while True:
-            img = self.try_get_snapshot()
+            img = self._try_get_snapshot()
             if img is None:
                 continue
             return img
 
-    def try_get_snapshot(self):
+    def _try_get_snapshot(self):
         try:
             resp = requests.get(self.camera_url)
             img_array = np.frombuffer(resp.content, np.uint8)
