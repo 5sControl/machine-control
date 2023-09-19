@@ -18,7 +18,11 @@ BLUE = (255, 0, 0)
 
 def run_machine_control(dataset: HTTPLIB2Capture, logger: Logger,
                         extra: str, server_url: str, folder: str) -> None:
-    img = dataset.get_snapshot()
+
+    img = None
+    while img is None:
+        img = dataset.get_snapshot()
+        time.sleep(1)
     areas_data = get_areas(img.shape, extra)
     start = end = time.time()
 
