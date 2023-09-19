@@ -40,7 +40,7 @@
 
 - For machine_control_python:
 
-  ```docker image push 5scontrol/machine_control_python:v1.3.1```
+  ```docker image push 5scontrol/machine_control_python:v1.3.2```
 
 - For machine_control_python_server_model:
 
