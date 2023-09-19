@@ -16,11 +16,11 @@
 
 - For x86 users
 
-    ```docker build -t 5scontrol/machine_control_python_model_server:v1.0.2 .```
+    ```docker build -t 5scontrol/machine_control_python_model_server:v1.0.3 .```
 
 - For AArch64 users 
 
-    ```docker buildx build --platform linux/amd64 -t 5scontrol/machine_control_python_model_server:v1.0.2 .```
+    ```docker buildx build --platform linux/amd64 -t 5scontrol/machine_control_python_model_server:v1.0.3 .```
 
 
 
@@ -44,7 +44,7 @@
 
 - For machine_control_python_server_model:
 
-  ```docker image push 5scontrol/machine_control_python_model_server:v1.0.2```
+  ```docker image push 5scontrol/machine_control_python_model_server:v1.0.3```
 
 [optional]: -e extra=[...]
 
