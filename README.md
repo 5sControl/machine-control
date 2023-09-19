@@ -5,11 +5,11 @@
 ### Build image for machine_control_python algorithm
 - For x86 users
 
-    ```docker build -t 5scontrol/machine_control_python:v1.3.1 .```
+    ```docker build -t 5scontrol/machine_control_python:v1.3.2 .```
 
 - for AArch64 users 
 
-    ```docker buildx build --platform linux/amd64 -t 5scontrol/machine_control_python:v1.3.1 .```
+    ```docker buildx build --platform linux/amd64 -t 5scontrol/machine_control_python:v1.3.2 .```
 
 
 ### Build image for machine_control_python_server_model algorithm
@@ -40,7 +40,7 @@
 
 - For machine_control_python:
 
-  ```docker image push 5scontrol/machine_control_python:v1.3.1```
+  ```docker image push 5scontrol/machine_control_python:v1.3.2```
 
 - For machine_control_python_server_model:
 
