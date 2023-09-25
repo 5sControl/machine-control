@@ -1,3 +1,4 @@
+import os
 import pathlib
 import cv2
 import logging
@@ -56,7 +57,7 @@ def send_report_and_save_photo(area, folder: str, server_url: str):
 
     report_for_send = {
         "camera": folder.split("/")[1],
-        "algorithm": "machine_control",
+        "algorithm": os.environ.get("algorithm_name"),
         "start_tracking": start_tracking,
         "stop_tracking": stop_tracking,
         "photos": photos,
