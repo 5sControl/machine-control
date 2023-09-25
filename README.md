@@ -5,22 +5,22 @@
 ### Build image for machine_control_python algorithm
 - For x86 users
 
-    ```docker build -t 5scontrol/machine_control_python:v1.3.2 .```
+    ```docker build -t 5scontrol/machine_control_python:latest .```
 
 - for AArch64 users 
 
-    ```docker buildx build --platform linux/amd64 -t 5scontrol/machine_control_python:v1.3.2 .```
+    ```docker buildx build --platform linux/amd64 -t 5scontrol/machine_control_python:latest .```
 
 
 ### Build image for machine_control_python_server_model algorithm
 
 - For x86 users
 
-    ```docker build -t 5scontrol/machine_control_python_model_server:v1.0.3 .```
+    ```docker build -t 5scontrol/machine_control_python_model_server:latest .```
 
 - For AArch64 users 
 
-    ```docker buildx build --platform linux/amd64 -t 5scontrol/machine_control_python_model_server:v1.0.3 .```
+    ```docker buildx build --platform linux/amd64 -t 5scontrol/machine_control_python_model_server:latest .```
 
 
 
@@ -40,11 +40,11 @@
 
 - For machine_control_python:
 
-  ```docker image push 5scontrol/machine_control_python:v1.3.2```
+  ```docker image push 5scontrol/machine_control_python:latest```
 
 - For machine_control_python_server_model:
 
-  ```docker image push 5scontrol/machine_control_python_model_server:v1.0.3```
+  ```docker image push 5scontrol/machine_control_python_model_server:latest```
 
 [optional]: -e extra=[...]
 
