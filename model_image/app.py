@@ -14,7 +14,7 @@ model = YoloDetector(MODEL_PATH, PERSOR_CONF)
 logger = logging.getLogger('machine_control_logger')
 handler = colorlog.StreamHandler()
 handler.setFormatter(colorlog.ColoredFormatter(
-        '%(log_color)s%(asctime)s %(levelname)s: %(message)s',
+        "%(log_color)s[%(asctime)s][%(levelname)s] - %(message)s",
         datefmt='%Y-%m-%d %H:%M:%S',
         log_colors={
             'DEBUG': 'cyan',
@@ -25,6 +25,7 @@ handler.setFormatter(colorlog.ColoredFormatter(
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 logger.propagate = False
+
 
 convert_bytes2image = lambda bytes: np.array(Image.open(io.BytesIO(bytes)), dtype=np.uint8)
 

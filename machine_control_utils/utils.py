@@ -1,4 +1,7 @@
+import os
 import pathlib
+import time
+from machine_control_utils.HTTPLIB2Capture import HTTPLIB2Capture
 import cv2
 import logging
 import uuid
@@ -25,6 +28,15 @@ class Area:
         self.zone_name = coords["zoneName"]
         self.zone_id = coords["zoneId"]
 
+    def __eq__(self, other: str):
+        if (len(self) == 0 and other == 'first') or \
+           (len(self) == 1 and other == 'second') or \
+           (len(self) == 2 and other == 'third') or \
+           (len(self) == 3 and other == 'fourth'):
+            return True
+        else:
+            return False
+
     def __len__(self):
         return len(self.imgs)
 
@@ -32,50 +44,46 @@ class Area:
         self.imgs = []
         self.date = []
 
-    def update(self, img, idx=None):
-        if idx is not None:
-            self.imgs[idx] = img
-            self.date[idx] = datetime.now()
+    def update(self, img, in_area: bool):
+        if in_area:
+            if self == 'first':
+                self.imgs.append(img)
+                self.date.append(datetime.now())
+            elif self == 'second':
+                self.imgs[0] = img
+                self.date[0] = datetime.now()
+            elif self == 'third':
+                self.imgs.append(self.imgs[1])
+                self.date.append(datetime.now())
+                self.imgs.append(img)
+                self.date.append(datetime.now())
+            elif self == 'fourth':
+                self.imgs.append(img)
+                self.date.append(datetime.now())
         else:
-            self.imgs.append(img)
-            self.date.append(datetime.now())
+            if self == 'first':
+                pass
+            elif self == 'second':
+                self.imgs.append(img)
+                self.date.append(datetime.now())
+            elif self == 'third':
+                self.imgs.append(img)
+                self.date.append(datetime.now())
+            elif self == 'fourth':
+                self.imgs[2] = img
+                self.date[2] = datetime.now()
 
 
-def send_report_and_save_photo(area, folder: str, server_url: str):
-    pathlib.Path(folder).mkdir(exist_ok=True, parents=True)
-
-    photos = []
-    for img, date in zip(area.imgs, area.date):
-        save_photo_url = f"{folder}/" + str(uuid.uuid4()) + ".jpg"
-        photos.append({"image": save_photo_url, "date": str(date)})
-        cv2.imwrite(save_photo_url, img)
-
-    logging.debug("photo saved")
-    start_tracking = str(area.date[0])
-    stop_tracking = str(area.date[-1])
-
-    report_for_send = {
-        "camera": folder.split("/")[1],
-        "algorithm": "machine_control",
-        "start_tracking": start_tracking,
-        "stop_tracking": stop_tracking,
-        "photos": photos,
-        "violation_found": True,
-        "extra": {"zoneId": area.zone_id, "zoneName": area.zone_name},
-    }
-    print(report_for_send)
-    try:
-        requests.post(
-            url=f"{server_url}:80/api/reports/report-with-photos/", json=report_for_send
-        )
-    except Exception as exc:
-        logging.error("send report:\n" + str(exc))
-
-
-def get_areas(img_shape: set, extra_data):
+def get_areas(dataset: HTTPLIB2Capture, extra_data):
     def process_area(coords: dict):
         area = Area(coords)
         areas_data.append(area)
+
+    img = None
+    while img is None:
+        img = dataset.get_snapshot()
+        time.sleep(1)
+    img_shape = img.shape
 
     areas_data, extra = [], []
 
@@ -95,7 +103,7 @@ def create_logger():
     handler = colorlog.StreamHandler()
     handler.setFormatter(
         colorlog.ColoredFormatter(
-            "%(log_color)s%(asctime)s %(levelname)s: %(message)s",
+            "%(log_color)s[%(asctime)s][%(levelname)s] - %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S",
             log_colors={
                 "DEBUG": "cyan",
@@ -148,6 +156,36 @@ def predict_human(img, server_url: str, logger: Logger):
         confidence = np.array(response.json().get("confidence"))
     except Exception as exc:
         boxes, confidence = [], []
-        logger.critical(
-            "Cannot send request. Error - {}".format(exc))
+        logger.critical("Cannot send request. Error - {}".format(exc))
     return boxes, confidence
+
+
+def send_report_and_save_photo(area, folder: str, server_url: str):
+    pathlib.Path(folder).mkdir(exist_ok=True, parents=True)
+
+    photos = []
+    for img, date in zip(area.imgs, area.date):
+        save_photo_url = f"{folder}/" + str(uuid.uuid4()) + ".jpg"
+        photos.append({"image": save_photo_url, "date": str(date)})
+        cv2.imwrite(save_photo_url, img)
+
+    logging.debug("photo saved")
+    start_tracking = str(area.date[0])
+    stop_tracking = str(area.date[-1])
+
+    report_for_send = {
+        "camera": folder.split("/")[1],
+        "algorithm": os.environ.get("algorithm_name"),
+        "start_tracking": start_tracking,
+        "stop_tracking": stop_tracking,
+        "photos": photos,
+        "violation_found": True,
+        "extra": {"zoneId": area.zone_id, "zoneName": area.zone_name},
+    }
+    print(report_for_send)
+    try:
+        requests.post(
+            url=f"{server_url}:80/api/reports/report-with-photos/", json=report_for_send
+        )
+    except Exception as exc:
+        logging.error("send report:\n" + str(exc))

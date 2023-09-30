@@ -18,6 +18,6 @@ server_url = os.environ.get("server_url")
 
 
 logger = create_logger()
-dataset = HTTPLIB2Capture(source, username=username, password=password)
+dataset = HTTPLIB2Capture(source, logger, username=username, password=password)
 
 run_machine_control(dataset, logger, extra, server_url, folder)
