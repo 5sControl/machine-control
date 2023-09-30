@@ -28,7 +28,7 @@ class HTTPLIB2Capture:
             while img is None:
                 img = self._get_snapshot_camera()
                 if img is None:
-                    time.speep(0.1)
+                    time.sleep(0.1)
             return img
 
     def _get_snapshot_local(self):
