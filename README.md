@@ -36,6 +36,18 @@
 
     ```docker run -it <container>```
 
+
+### Run/Test code
+
+- For machine_control_python
+
+  ```python main.py```
+
+- For machine_control_python_server_model
+
+  ```python -m flask run --host 0.0.0.0 --port 5002```
+
+
 ### Push images
 
 - For machine_control_python:

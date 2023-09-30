@@ -181,7 +181,7 @@ def postprocess(
         torch.from_numpy(pred_boxes),
         min_conf_threshold,
         nms_iou_threshold,
-        nc=80,
+        nc=1,
         **nms_kwargs
     )
     results = []

@@ -1,89 +1,71 @@
+import time
+
 import cv2
 from machine_control_utils.HTTPLIB2Capture import HTTPLIB2Capture
 from logging import Logger
-from config.load_config import INTERSECTION_THRESHOLD, TIMEDELTA_MINUTES
 from machine_control_utils.utils import (
     predict_human,
     send_report_and_save_photo,
-    get_intersection,
     get_areas,
 )
-from datetime import datetime, timedelta
-import time
+
 
 GREEN = (0, 200, 0)
 RED = (0, 0, 200)
 BLUE = (255, 0, 0)
+PURPLE = (100, 0, 200)
 
 
 def run_machine_control(dataset: HTTPLIB2Capture, logger: Logger,
                         extra: str, server_url: str, folder: str) -> None:
-
-    img = None
-    while img is None:
-        img = dataset.get_snapshot()
-        time.sleep(1)
-    areas_data = get_areas(img.shape, extra)
-    start = end = time.time()
-
+    logger.info(f'Input parameters:')
+    logger.info(f'{server_url=}')
     logger.info(f'{extra=}')
+
+    areas_data = get_areas(dataset, extra)
+    start = end = time.time()
     while True:
-        total_run_time = end - start
-        if 0 < total_run_time < 1:
-            time.sleep(1 - total_run_time)
+        if end - start < 1:
+            lag = end - start
+            logger.debug(f'Algorithm speed per iteration {lag}')
+            logger.debug(f'Sleep time: {1 - lag}')
+            time.sleep(1 - lag)
         start = time.time()
 
-        img = dataset.get_snapshot()
-        if img is None:
-            end = time.time()
-            continue
-        boxes, confidence = predict_human(img, server_url, logger)
-
-        for i, a_val in enumerate(areas_data):
-            x1, y1, x2, y2 = a_val.coords
-            area_box = x1, y1, x2, y2
+        img_clear = dataset.get_snapshot()
+        for idx, area in enumerate(areas_data):
+            img = img_clear.copy()
+            x1, y1, x2, y2 = area.coords
             area_box_plot = x1, y1, x2 - x1, y2 - y1
 
-            cv2.putText(img, str(a_val.zone_id), (area_box_plot[0], area_box_plot[1] - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 0, 200), 1, cv2.LINE_AA)
+            cv2.putText(img, str(area.zone_id), (area_box_plot[0], area_box_plot[1] - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, PURPLE, 1, cv2.LINE_AA)
+
+            boxes, confidence = predict_human(img[y1:y2, x1:x2], server_url, logger)
 
             in_area = False
-            for (x1, y1, x2, y2), conf in zip(boxes, confidence):
-                human_box = x1, y1, x2, y2
-                human_box_plot = x1, y1, x2 - x1, y2 - y1
+            if len(boxes) != 0:
+                in_area = True
+                for (h_x1, h_y1, h_x2, h_y2), conf in zip(boxes, confidence):
+                    h_x1, h_y1, h_x2, h_y2 = h_x1 + x1, h_y1 + y1, h_x2 + x1, h_y2 + y1
+                    human_box_plot = h_x1, h_y1, h_x2 - h_x1, h_y2 - h_y1
 
-                if get_intersection(human_box, area_box, threshold=INTERSECTION_THRESHOLD):
-                    in_area = True
-                    cv2.rectangle(img, human_box_plot, BLUE, 1)
-
-                    if len(areas_data[i]) == 0:
-                        areas_data[i].update(img)
-                    elif len(areas_data[i]) == 1:
-                        areas_data[i].update(img, idx=0)
-                    elif len(areas_data[i]) == 3:
-                        if datetime.now() - areas_data[i].date[0] > timedelta(minutes=TIMEDELTA_MINUTES):
-                            areas_data[i].refresh()
-                        else:
-                            areas_data[i].update(img)
-
-            if not in_area:
-                if len(areas_data[i]) == 1:
-                    areas_data[i].update(img)
-                    areas_data[i].update(img)
-                if len(areas_data[i]) == 3:
-                    areas_data[i].update(img, idx=2)
+                    cv2.rectangle(img, human_box_plot, BLUE, 3)
+                    cv2.putText(img, str(conf)[:4], (human_box_plot[0], human_box_plot[1] - 10),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, PURPLE, 1, cv2.LINE_AA)
 
             color = GREEN if in_area else RED
             cv2.rectangle(img, area_box_plot, color, 2)
 
-        for i, _ in enumerate(areas_data):
-            if len(areas_data[i]) >= 4:
-                send_report_and_save_photo(areas_data[i], folder, server_url)
-                areas_data[i].refresh()
+            areas_data[idx].update(img, in_area)
 
-        if dataset.is_local:
-            cv2.imshow("img", img)
-            if cv2.waitKey(1) & 0xFF == 27:
-                break
+            if dataset.is_local:
+                cv2.imshow("img", img)
+                if cv2.waitKey(1) & 0xFF == 27:
+                    break
 
+        for idx, _ in enumerate(areas_data):
+            if len(areas_data[idx]) >= 4:
+                send_report_and_save_photo(areas_data[idx], folder, server_url)
+                areas_data[idx].refresh()
         end = time.time()

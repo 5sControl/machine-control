@@ -1,12 +1,13 @@
 import requests
 import numpy as np
 import cv2
-import logging
+from logging import Logger
 
 
 class HTTPLIB2Capture:
-    def __init__(self, path, **kwargs):
+    def __init__(self, path: str, logger: Logger, **kwargs):
         self.camera_url = path
+        self.logger = logger
         self.username = kwargs.get("username", None)
         self.password = kwargs.get("password", None)
 
@@ -16,13 +17,16 @@ class HTTPLIB2Capture:
             self.cap = cv2.VideoCapture(1)
 
         if self.username is None or self.password is None:
-            logging.warning("Empty password or username")
+            self.logger.warning("Empty password or username")
 
     def get_snapshot(self):
         if self.is_local:
             return self._get_snapshot_local()
         else:
-            return self._get_snapshot_camera()
+            img = []
+            while img is None:
+                img = self._get_snapshot_camera()
+            return img
 
     def _get_snapshot_local(self):
         while True:
@@ -37,5 +41,5 @@ class HTTPLIB2Capture:
             image = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
             return image
         except Exception as exc:
-            logging.warning(f"Empty image.\n {exc} \n Skipping iteration...")
+            self.logger.warning(f"Empty image.\n {exc} \n Skipping iteration...")
             return None
