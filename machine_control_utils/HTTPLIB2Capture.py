@@ -1,5 +1,6 @@
 import requests
 import numpy as np
+import time
 import cv2
 from logging import Logger
 
@@ -23,9 +24,11 @@ class HTTPLIB2Capture:
         if self.is_local:
             return self._get_snapshot_local()
         else:
-            img = []
+            img = None
             while img is None:
                 img = self._get_snapshot_camera()
+                if img is None:
+                    time.speep(0.1)
             return img
 
     def _get_snapshot_local(self):

@@ -79,10 +79,7 @@ def get_areas(dataset: HTTPLIB2Capture, extra_data):
         area = Area(coords)
         areas_data.append(area)
 
-    img = None
-    while img is None:
-        img = dataset.get_snapshot()
-        time.sleep(1)
+    img = dataset.get_snapshot()
     img_shape = img.shape
 
     areas_data, extra = [], []

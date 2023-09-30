@@ -25,9 +25,10 @@ def run_machine_control(dataset: HTTPLIB2Capture, logger: Logger,
     areas_data = get_areas(dataset, extra)
     start = end = time.time()
     while True:
-        if end - start < 1:
-            lag = end - start
-            logger.debug(f'Algorithm speed per iteration {lag}')
+        lag = end - start
+        logger.debug(f'Algorithm speed per iteration {lag}')
+
+        if lag < 1:
             logger.debug(f'Sleep time: {1 - lag}')
             time.sleep(1 - lag)
         start = time.time()
