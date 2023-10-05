@@ -1,4 +1,3 @@
-from flask import Flask, jsonify, request
 from ObjectDetectionModel import YoloDetector
 from flask_config.load_config import *
 import logging
@@ -6,10 +5,9 @@ import colorlog
 import numpy as np
 from PIL import Image
 import io
+from flask import Flask, request, jsonify
+from concurrent.futures import ThreadPoolExecutor
 
-
-app = Flask(__name__)
-model = YoloDetector(MODEL_PATH, PERSOR_CONF)
 
 logger = logging.getLogger('machine_control_logger')
 handler = colorlog.StreamHandler()
@@ -27,14 +25,25 @@ logger.setLevel(logging.DEBUG)
 logger.propagate = False
 
 
+app = Flask(__name__)
+model = YoloDetector(MODEL_PATH, PERSOR_CONF)
 convert_bytes2image = lambda bytes: np.array(Image.open(io.BytesIO(bytes)), dtype=np.uint8)
+executor = ThreadPoolExecutor(max_workers=1)
+
+
+def process_request(request_data):
+    img = convert_bytes2image(request_data)
+    boxes, confidence = model.predict(img)
+    return boxes, confidence
 
 
 @app.route("/predict_human", methods=["POST"])
-def predict_human():
+async def predict_human():
     if request.method == "POST":
-        img = convert_bytes2image(request.files["img"].read())
-        boxes, confidence = model.predict(img)
+        request_data = request.files["img"].read()
+
+        future = executor.submit(process_request, request_data)
+        boxes, confidence = future.result()
         logger.info("Request to predict_human: Success")
         return jsonify(
             {
@@ -42,3 +51,7 @@ def predict_human():
                 "confidence": confidence.tolist()
             }
         )
+
+
+if __name__ == "__main__":
+    app.run()

@@ -22,7 +22,7 @@ def run_machine_control(dataset: HTTPLIB2Capture, logger: Logger,
     logger.info(f'{server_url=}')
     logger.info(f'{extra=}')
 
-    areas_data = get_areas(dataset, extra)
+    areas_data: list = get_areas(dataset, extra)
     start = end = time.time()
     while True:
         lag = end - start
@@ -39,10 +39,12 @@ def run_machine_control(dataset: HTTPLIB2Capture, logger: Logger,
             x1, y1, x2, y2 = area.coords
             area_box_plot = x1, y1, x2 - x1, y2 - y1
 
-            cv2.putText(img, str(area.zone_id), (area_box_plot[0], area_box_plot[1] - 10),
+            cv2.putText(img, str(area.zone_name), (area_box_plot[0], area_box_plot[1] - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, PURPLE, 1, cv2.LINE_AA)
 
             boxes, confidence = predict_human(img[y1:y2, x1:x2], server_url, logger)
+            if boxes is None:
+                continue
 
             in_area = False
             if len(boxes) != 0:
