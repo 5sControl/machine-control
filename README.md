@@ -15,7 +15,7 @@ Designed to handle complex industrial processes with ease, this innovative tool 
 
 **Plug-in Machine control to 5controlS platform to detect when your workers are absent!**
 
-## Getting started 
+# Getting started 
 
 ### Build image for machine_control_python algorithm
 - For x86 users
@@ -125,7 +125,7 @@ We also have a list of [good first issues]() that will help you make your first 
 1. [inference-server-js](https://github.com/5sControl/inference-server-js)
 
 # **License**
-
+[AGPL-3.0](LICENSE)
 
 
 <br>
