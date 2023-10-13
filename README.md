@@ -1,5 +1,3 @@
-# Machine control
-
 # About Machine control
 Machine control is one of the Official [5controlS](https://5controls.com/) algorithm.
 
@@ -103,7 +101,7 @@ Please note that this project is released with a [Contributor Code of Conduct](C
 
 If you want to contribute, read  our [contributing guide](CONTRIBUTING.md) to learn about our development process and pull requests workflow.
 
-We also have a list of [good first issues]() that will help you make your first step to beсoming a 5S contributor.
+We also have a list of [good first issues](https://github.com/5sControl/machine-control/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) that will help you make your first step to beсoming a 5S contributor.
 
 # **Project repositories**
 
@@ -127,6 +125,7 @@ We also have a list of [good first issues]() that will help you make your first 
 # **License**
 [AGPL-3.0](LICENSE)
 
+> Machine control uses third party libraries that are distributed under their own terms (see [LICENSE-3RD-PARTY.md](https://github.com/5sControl/machine-control/blob/main/LICENSE-3RD-PARTY.md)).<br>
 
 <br>
 <div align="center">
