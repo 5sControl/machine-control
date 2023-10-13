@@ -5,8 +5,8 @@ import colorlog
 import numpy as np
 from PIL import Image
 import io
+import ray
 from flask import Flask, request, jsonify
-from concurrent.futures import ThreadPoolExecutor
 
 
 logger = logging.getLogger('machine_control_logger')
@@ -25,25 +25,29 @@ logger.setLevel(logging.DEBUG)
 logger.propagate = False
 
 
+@ray.remote
+class MyModel:
+    def __init__(self):
+        self.model = YoloDetector(MODEL_PATH, PERSOR_CONF)
+        self.convert_bytes2image = lambda bytes: np.array(Image.open(io.BytesIO(bytes)), dtype=np.uint8)
+
+    def process_request(self, data):
+        data = self.convert_bytes2image(data)
+        boxes, confidence = self.model.predict(data)
+        return boxes, confidence
+
+
 app = Flask(__name__)
-model = YoloDetector(MODEL_PATH, PERSOR_CONF)
-convert_bytes2image = lambda bytes: np.array(Image.open(io.BytesIO(bytes)), dtype=np.uint8)
-executor = ThreadPoolExecutor(max_workers=1)
+ray.init(num_cpus=8)
+model = MyModel.remote()
 
 
-def process_request(request_data):
-    img = convert_bytes2image(request_data)
-    boxes, confidence = model.predict(img)
-    return boxes, confidence
-
-
-@app.route("/predict_human", methods=["POST"])
-async def predict_human():
+@app.route('/predict_human', methods=['POST'])
+def process():
     if request.method == "POST":
-        request_data = request.files["img"].read()
-
-        future = executor.submit(process_request, request_data)
-        boxes, confidence = future.result()
+        data = request.files["img"].read()
+        result = model.process_request.remote(data)
+        boxes, confidence = ray.get(result)
         logger.info("Request to predict_human: Success")
         return jsonify(
             {
@@ -51,7 +55,3 @@ async def predict_human():
                 "confidence": confidence.tolist()
             }
         )
-
-
-if __name__ == "__main__":
-    app.run()

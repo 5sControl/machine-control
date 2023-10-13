@@ -26,7 +26,7 @@ class HTTPLIB2Capture:
             self.logger.info('Trying to get photo')
             img = self._get_snapshot_local() if self.is_local else self._get_snapshot_camera()
             if img is None:
-                time.sleep(0.1)
+                time.sleep(0.5)
         self.logger.info('Got image from camera')
         return img
 
