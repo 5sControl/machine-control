@@ -151,10 +151,11 @@ def predict_human(img, server_url: str, logger: Logger):
         response.raise_for_status()
         boxes = np.array(response.json().get("boxes"))
         confidence = np.array(response.json().get("confidence"))
+        logger.info("The request was successfully sent and a response was received")
+        return boxes, confidence
     except Exception as exc:
-        boxes, confidence = [], []
-        logger.critical("Cannot send request. Error - {}".format(exc))
-    return boxes, confidence
+        logger.critical("Cannot send request to model_server. Error - {}".format(exc))
+        return None, None
 
 
 def send_report_and_save_photo(area, folder: str, server_url: str):
@@ -182,7 +183,7 @@ def send_report_and_save_photo(area, folder: str, server_url: str):
     print(report_for_send)
     try:
         requests.post(
-            url=f"{server_url}:80/api/reports/report-with-photos/", json=report_for_send
+            url=os.environ.get("link_reports"), json=report_for_send
         )
     except Exception as exc:
         logging.error("send report:\n" + str(exc))

@@ -1,4 +1,3 @@
-from flask import Flask, jsonify, request
 from ObjectDetectionModel import YoloDetector
 from flask_config.load_config import *
 import logging
@@ -6,10 +5,9 @@ import colorlog
 import numpy as np
 from PIL import Image
 import io
+import ray
+from flask import Flask, request, jsonify
 
-
-app = Flask(__name__)
-model = YoloDetector(MODEL_PATH, PERSOR_CONF)
 
 logger = logging.getLogger('machine_control_logger')
 handler = colorlog.StreamHandler()
@@ -27,14 +25,29 @@ logger.setLevel(logging.DEBUG)
 logger.propagate = False
 
 
-convert_bytes2image = lambda bytes: np.array(Image.open(io.BytesIO(bytes)), dtype=np.uint8)
+@ray.remote
+class MyModel:
+    def __init__(self):
+        self.model = YoloDetector(MODEL_PATH, PERSOR_CONF)
+        self.convert_bytes2image = lambda bytes: np.array(Image.open(io.BytesIO(bytes)), dtype=np.uint8)
+
+    def process_request(self, data):
+        data = self.convert_bytes2image(data)
+        boxes, confidence = self.model.predict(data)
+        return boxes, confidence
 
 
-@app.route("/predict_human", methods=["POST"])
-def predict_human():
+app = Flask(__name__)
+ray.init(num_cpus=8)
+model = MyModel.remote()
+
+
+@app.route('/predict_human', methods=['POST'])
+def process():
     if request.method == "POST":
-        img = convert_bytes2image(request.files["img"].read())
-        boxes, confidence = model.predict(img)
+        data = request.files["img"].read()
+        result = model.process_request.remote(data)
+        boxes, confidence = ray.get(result)
         logger.info("Request to predict_human: Success")
         return jsonify(
             {

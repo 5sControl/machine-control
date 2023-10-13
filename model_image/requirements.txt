@@ -1,10 +1,13 @@
-flask
-werkzeug
+python-dotenv==1.0.0
 opencv-python==4.7.0.72
 requests==2.31.0
-python-dotenv==1.0.0
 colorlog==4.8
-openvino==2023.1.0
 pandas
 numpy
 Pillow
+openvino==2023.1.0
+asgiref==3.7.2
+async==0.6.2
+Flask==3.0.0
+Werkzeug==3.0.0
+ray

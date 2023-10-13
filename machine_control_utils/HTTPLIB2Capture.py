@@ -21,21 +21,18 @@ class HTTPLIB2Capture:
             self.logger.warning("Empty password or username")
 
     def get_snapshot(self):
-        if self.is_local:
-            return self._get_snapshot_local()
-        else:
-            img = None
-            while img is None:
-                img = self._get_snapshot_camera()
-                if img is None:
-                    time.sleep(0.1)
-            return img
+        img = None
+        while img is None:
+            self.logger.info('Trying to get photo')
+            img = self._get_snapshot_local() if self.is_local else self._get_snapshot_camera()
+            if img is None:
+                time.sleep(0.5)
+        self.logger.info('Got image from camera')
+        return img
 
     def _get_snapshot_local(self):
-        while True:
-            succes, img = self.cap.read()
-            if succes:
-                return img
+        succes, img = self.cap.read()
+        return img if succes else None
 
     def _get_snapshot_camera(self):
         try:
