@@ -13,6 +13,8 @@ Designed to handle complex industrial processes with ease, this innovative tool 
 
 **Plug-in Machine control to 5controlS platform to detect when your workers are absent!**
 
+> Learn more about Machine control on the [5controlS website](https://5controls.com/solutions/machine-control).
+
 # Getting started 
 
 ### Build image for machine_control_python algorithm
