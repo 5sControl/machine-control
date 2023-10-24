@@ -3,7 +3,7 @@ Machine control is one of the Official [5controlS](https://5controls.com/) algor
 
 Designed to handle complex industrial processes with ease, this innovative tool is perfect for use with semi-automated equipment. With Machine Control you can optimize your industrial processes and keep your equipment running smoothly, saving you time and money.
 
-![Frame 2608741](https://github.com/5sControl/machine-control/assets/131950264/5c074f95-2ea6-4247-9aba-5efe944b7188)
+![Machine-control](https://github.com/5sControl/5s-user-documentation/blob/main/assets/Machine-control.png)
 
 
 ## Key features
