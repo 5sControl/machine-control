@@ -1,5 +1,5 @@
 # About Machine control
-Machine control is one of the Official [5controlS](https://5controls.com/) algorithm. Plug it in our video monitoring system with AI analysis and ERP Integration (Open Source) to to increase the efficiency of your processes.
+Machine control is one of the Official [5controlS](https://5controls.com/) algorithm. Plug it in our video monitoring system with AI analysis and ERP Integration (Open Source) to increase the efficiency of your processes.
 
 
 Designed to handle complex industrial processes with ease, this innovative tool is perfect for use with semi-automated equipment. With Machine Control you can optimize your industrial processes and keep your equipment running smoothly, saving you time and money.
